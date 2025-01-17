@@ -3,4 +3,6 @@ Singing voice synthesis tool to automatically create audio playback for the Lati
 
 Liu, Jinglin, Chengxi Li, Yi Ren, Feiyang Chen, and Zhou Zhao. "Diffsinger: Singing voice synthesis via shallow diffusion mechanism." In *Proceedings of the AAAI conference on artificial intelligence*, vol. 36, no. 10, pp. 11020-11028. 2022. https://arxiv.org/abs/2105.02446
 
-Training follows the process described in [this](https://docs.google.com/document/d/1uMsepxbdUW65PfIWL1pt2OM6ZKa5ybTTJOpZ733Ht6s/view) tutorial by [PixPrucer](https://bsky.app/profile/pixprucer.bsky.social). For further help, join the [DiffSinger Discord server](https://discord.gg/DZ6fhEUfnb).
+The procedure follows what is described in [this](https://docs.google.com/document/d/1uMsepxbdUW65PfIWL1pt2OM6ZKa5ybTTJOpZ733Ht6s/view) tutorial by [PixPrucer](https://bsky.app/profile/pixprucer.bsky.social). For further help, join the [DiffSinger Discord server](https://discord.gg/DZ6fhEUfnb).
+
+Model trained using [this](https://github.com/MLo7Ghinsan/DiffSinger_colab_notebook_MLo7) Google Colab notebook by [Ghin_MLo7](https://github.com/MLo7Ghinsan).
