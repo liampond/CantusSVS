@@ -1,1 +1,3 @@
-/recordings/
+recordings/
+.DS_Store
+.venv/
