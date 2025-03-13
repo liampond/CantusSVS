@@ -3,6 +3,16 @@ import os
 import sys
 from pathlib import Path
 
+import yaml
+
+hparams = {}
+
+def set_hparams(config_path=None):
+    global hparams
+    if config_path:
+        with open(config_path, "r") as f:
+            hparams = yaml.safe_load(f)
+
 root_dir = Path(__file__).parent.parent.resolve()
 os.environ['PYTHONPATH'] = str(root_dir)
 sys.path.insert(0, str(root_dir))

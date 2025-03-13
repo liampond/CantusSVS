@@ -14,7 +14,7 @@ infer_out/
 /.venv/
 /artifacts/
 /.DS_Store
-
+nnsvs-db-converter/venv/
 
 .vscode
 .ipynb_checkpoints/
