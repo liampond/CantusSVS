@@ -133,8 +133,8 @@ val_check_interval: 1000
 num_valid_plots: 10
 max_updates: 160000
 num_ckpt_keep: 20
-permanent_ckpt_start: 80000
-permanent_ckpt_interval: 20000
+permanent_ckpt_start: 5000
+permanent_ckpt_interval: 5000
 
 finetune_enabled: false
 finetune_ckpt_path: null
