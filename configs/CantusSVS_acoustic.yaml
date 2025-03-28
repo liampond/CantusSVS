@@ -131,8 +131,8 @@ dataset_size_key: 'lengths'
 val_with_vocoder: true
 val_check_interval: 1000
 num_valid_plots: 10
-max_updates: 160000
-num_ckpt_keep: 20
+max_updates: 500000
+num_ckpt_keep: 10
 permanent_ckpt_start: 5000
 permanent_ckpt_interval: 5000
 
