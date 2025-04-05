@@ -1,0 +1,8 @@
+checkpoints/
+venv/
+DiffSinger/
+training_*.out
+__pycache__/
+*.pyc
+*.pyo
+*.swp
