@@ -1,5 +1,6 @@
 checkpoints/
 venv/
+.venv/
 DiffSinger/
 training_*.out
 __pycache__/
