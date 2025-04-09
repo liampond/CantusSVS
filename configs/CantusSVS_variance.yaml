@@ -36,7 +36,7 @@ binarization_args:
   num_workers: 0
   prefer_ds: false
 
-binary_data_dir: 'data/binary/regular_variance_v1'
+binary_data_dir: 'data/binary/regular_acoustic_v1' # Double check
 binarizer_cls: preprocessing.variance_binarizer.VarianceBinarizer
 dictionary: dictionaries/latin_dictionary.txt
 
