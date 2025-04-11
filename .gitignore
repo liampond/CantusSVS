@@ -17,3 +17,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.swp
+artifacts/
+data/NNSVS_training_data/
+data/binary/
