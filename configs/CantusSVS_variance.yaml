@@ -1,6 +1,10 @@
 base_config:
   - configs/base.yaml
 
+pl_trainer_precision: '16-mixed'
+pe: 'rmvpe'
+pe_ckpt: checkpoints/dependency_checkpoints/rmvpe/model.pt
+
 task_cls: training.variance_task.VarianceTask
 spk_ids: []
 
@@ -18,12 +22,6 @@ test_prefixes:
 
 raw_data_dir:
     - data/NNSVS_training_data/regular/diffsinger_db #0
-    
-hnsep: vr
-hnsep_ckpt: checkpoints/dependency_checkpoints/vr/model.pt
-
-vocoder: NsfHifiGAN
-vocoder_ckpt: checkpoints/dependency_checkpoints/nsf-hifigan/model.ckpt
 
 audio_sample_rate: 44100
 hop_size: 512            # Hop size.
@@ -36,7 +34,7 @@ binarization_args:
   num_workers: 0
   prefer_ds: false
 
-binary_data_dir: 'data/binary/regular_acoustic_v1' # Double check
+binary_data_dir: 'data/binary/regular_variance_v1'
 binarizer_cls: preprocessing.variance_binarizer.VarianceBinarizer
 dictionary: dictionaries/latin_dictionary.txt
 
@@ -133,14 +131,14 @@ optimizer_args:
 lr_scheduler_args:
   step_size: 10000
   gamma: 0.75
-max_batch_frames: 80000
+max_batch_frames: 50000
 max_batch_size: 16
 dataset_size_key: 'lengths'
 val_check_interval: 1000
 num_valid_plots: 10
 max_updates: 1000000
-num_ckpt_keep: 10
-permanent_ckpt_start: 10
+num_ckpt_keep: 5
+permanent_ckpt_start: 3
 permanent_ckpt_interval: 1000
 
 finetune_enabled: false

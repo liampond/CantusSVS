@@ -1,0 +1,262 @@
+GPU Check:
+Thu Apr 10 06:39:14 2025       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.54.15              Driver Version: 550.54.15      CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-SXM2-32GB           On  |   00000000:18:00.0 Off |                    0 |
+| N/A   33C    P0             44W /  300W |       0MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+| load phoneme set: ['AP', 'SP', 'a', 'ah', 'au', 'ay', 'b', 'c', 'cl', 'ct', 'd', 'dj', 'e', 'f', 'g', 'gr', 'i', 'ie', 'iu', 'j', 'l', 'm', 'n', 'ng', 'nt', 'o', 'oh', 'p', 'r', 's', 't', 'tr', 'ts', 'u', 'uo', 'v', 'x']
+/home/liampond/env-py311/lib/python3.11/site-packages/lightning/fabric/plugins/environments/slurm.py:191: The `srun` command is available on your system but is not used. HINT: If your intention is to run Lightning on SLURM, prepend your python command with `srun` like so: srun python scripts/train.py --config=configs/CantusSVS_variance ...
+Using 16bit Automatic Mixed Precision (AMP)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+
+[INFO] Using config file: ['scripts/train.py', '--config=configs/CantusSVS_variance.yaml', '--exp_name=regular_variance_v1', '--pl_trainer.accelerator=gpu', '--pl_trainer.devices=1', '--pl_trainer.precision=16-mixed']
+
+| Hparams chains:  ['configs/base.yaml', 'configs/CantusSVS_variance.yaml']
+| Hparams: 
+[0;33mK_step[0m: 1000, [0;33maccumulate_grad_batches[0m: 1, [0;33maudio_sample_rate[0m: 44100, [0;33mbase_config[0m: ['configs/base.yaml'], [0;33mbinarization_args[0m: {'shuffle': True, 'num_workers': 0, 'prefer_ds': False}, 
+[0;33mbinarizer_cls[0m: preprocessing.variance_binarizer.VarianceBinarizer, [0;33mbinary_data_dir[0m: data/binary/regular_acoustic_v1, [0;33mbreathiness_db_max[0m: -20.0, [0;33mbreathiness_db_min[0m: -96.0, [0;33mbreathiness_smooth_width[0m: 0.12, 
+[0;33mclip_grad_norm[0m: 1, [0;33mdataloader_prefetch_factor[0m: 2, [0;33mdataset_size_key[0m: lengths, [0;33mdictionary[0m: dictionaries/latin_dictionary.txt, [0;33mdiff_accelerator[0m: ddim, 
+[0;33mdiff_speedup[0m: 10, [0;33mdiffusion_type[0m: reflow, [0;33mdropout[0m: 0.1, [0;33mds_workers[0m: 4, [0;33mdur_prediction_args[0m: {'arch': 'fs2', 'hidden_size': 512, 'dropout': 0.1, 'num_layers': 5, 'kernel_size': 3, 'log_offset': 1.0, 'loss_type': 'mse', 'lambda_pdur_loss': 0.3, 'lambda_wdur_loss': 1.0, 'lambda_sdur_loss': 3.0}, 
+[0;33menc_ffn_kernel_size[0m: 3, [0;33menc_layers[0m: 4, [0;33menergy_db_max[0m: -12.0, [0;33menergy_db_min[0m: -96.0, [0;33menergy_smooth_width[0m: 0.12, 
+[0;33mexp_name[0m: regular_variance_v1, [0;33mf0_max[0m: 1100, [0;33mf0_min[0m: 65, [0;33mffn_act[0m: gelu, [0;33mfft_size[0m: 2048, 
+[0;33mfinetune_ckpt_path[0m: None, [0;33mfinetune_enabled[0m: False, [0;33mfinetune_ignored_params[0m: ['model.spk_embed', 'model.fs2.txt_embed', 'model.fs2.encoder.embed_tokens'], [0;33mfinetune_strict_shapes[0m: True, [0;33mfreezing_enabled[0m: False, 
+[0;33mfrozen_params[0m: [], [0;33mglide_embed_scale[0m: 11.31370849898476, [0;33mglide_types[0m: ['up', 'down'], [0;33mhidden_size[0m: 256, [0;33mhnsep[0m: vr, 
+[0;33mhnsep_ckpt[0m: checkpoints/dependency_checkpoints/vr/model.pt, [0;33mhop_size[0m: 512, [0;33minfer[0m: False, [0;33mlambda_dur_loss[0m: 1.0, [0;33mlambda_pitch_loss[0m: 1.0, 
+[0;33mlambda_var_loss[0m: 1.0, [0;33mlog_interval[0m: 100, [0;33mlr_scheduler_args[0m: {'scheduler_cls': 'torch.optim.lr_scheduler.StepLR', 'step_size': 10000, 'gamma': 0.75}, [0;33mmain_loss_log_norm[0m: True, [0;33mmain_loss_type[0m: l2, 
+[0;33mmax_batch_frames[0m: 80000, [0;33mmax_batch_size[0m: 16, [0;33mmax_beta[0m: 0.02, [0;33mmax_updates[0m: 1000000, [0;33mmax_val_batch_frames[0m: 60000, 
+[0;33mmax_val_batch_size[0m: 1, [0;33mmelody_encoder_args[0m: {'hidden_size': 128, 'enc_layers': 4}, [0;33mmidi_smooth_width[0m: 0.06, [0;33mnccl_p2p[0m: True, [0;33mnum_ckpt_keep[0m: 10, 
+[0;33mnum_heads[0m: 2, [0;33mnum_sanity_val_steps[0m: 1, [0;33mnum_spk[0m: 1, [0;33mnum_valid_plots[0m: 10, [0;33moptimizer_args[0m: {'optimizer_cls': 'torch.optim.AdamW', 'lr': 0.0006, 'beta1': 0.9, 'beta2': 0.98, 'weight_decay': 0}, 
+[0;33mpe[0m: parselmouth, [0;33mpe_ckpt[0m: checkpoints/rmvpe/model.pt, [0;33mpermanent_ckpt_interval[0m: 1000, [0;33mpermanent_ckpt_start[0m: 10, [0;33mpitch_prediction_args[0m: {'pitd_norm_min': -8.0, 'pitd_norm_max': 8.0, 'pitd_clip_min': -12.0, 'pitd_clip_max': 12.0, 'repeat_bins': 64, 'backbone_type': 'wavenet', 'backbone_args': {'num_layers': 20, 'num_channels': 256, 'dilation_cycle_length': 5}}, 
+[0;33mpl_trainer_accelerator[0m: auto, [0;33mpl_trainer_devices[0m: auto, [0;33mpl_trainer_num_nodes[0m: 1, [0;33mpl_trainer_precision[0m: 16-mixed, [0;33mpl_trainer_strategy[0m: {'name': 'auto', 'process_group_backend': 'nccl', 'find_unused_parameters': False}, 
+[0;33mpredict_breathiness[0m: False, [0;33mpredict_dur[0m: True, [0;33mpredict_energy[0m: False, [0;33mpredict_pitch[0m: True, [0;33mpredict_tension[0m: False, 
+[0;33mpredict_voicing[0m: False, [0;33mraw_data_dir[0m: ['data/NNSVS_training_data/regular/diffsinger_db'], [0;33mrel_pos[0m: True, [0;33msampler_frame_count_grid[0m: 6, [0;33msampling_algorithm[0m: euler, 
+[0;33msampling_steps[0m: 20, [0;33mschedule_type[0m: linear, [0;33msort_by_len[0m: True, [0;33mspeakers[0m: ['regular'], [0;33mspk_ids[0m: [], 
+[0;33mtask_cls[0m: training.variance_task.VarianceTask, [0;33mtension_logit_max[0m: 10.0, [0;33mtension_logit_min[0m: -10.0, [0;33mtension_smooth_width[0m: 0.12, [0;33mtest_prefixes[0m: ['0:Adventus_seg012', '0:Adventus_seg024', '0:Adventus_seg036', '0:Adventus_seg048', '0:Adventus_seg060'], 
+[0;33mtime_scale_factor[0m: 1000, [0;33mtimesteps[0m: 1000, [0;33muse_glide_embed[0m: False, [0;33muse_melody_encoder[0m: False, [0;33muse_pos_embed[0m: True, 
+[0;33muse_rope[0m: True, [0;33muse_spk_id[0m: False, [0;33mval_check_interval[0m: 1000, [0;33mvariances_prediction_args[0m: {'total_repeat_bins': 48, 'backbone_type': 'wavenet', 'backbone_args': {'num_layers': 10, 'num_channels': 192, 'dilation_cycle_length': 4}}, [0;33mvocoder[0m: NsfHifiGAN, 
+[0;33mvocoder_ckpt[0m: checkpoints/dependency_checkpoints/nsf-hifigan/model.ckpt, [0;33mvoicing_db_max[0m: -12.0, [0;33mvoicing_db_min[0m: -96.0, [0;33mvoicing_smooth_width[0m: 0.12, [0;33mwin_size[0m: 2048, 
+[0;33mwork_dir[0m: checkpoints/regular_variance_v1, 
+| model Arch:  DiffSingerVariance(
+  (fs2): FastSpeech2Variance(
+    (txt_embed): NormalInitEmbedding(38, 256, padding_idx=0)
+    (onset_embed): NormalInitEmbedding(2, 256)
+    (word_dur_embed): XavierUniformInitLinear(in_features=1, out_features=256, bias=True)
+    (encoder): FastSpeech2Encoder(
+      (layers): ModuleList(
+        (0-3): 4 x TransformerEncoderLayer(
+          (op): EncSALayer(
+            (layer_norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+            (self_attn): MultiheadSelfAttentionWithRoPE(
+              (in_proj): Linear(in_features=256, out_features=768, bias=False)
+              (out_proj): Linear(in_features=256, out_features=256, bias=False)
+              (dropout): Dropout(p=0.0, inplace=False)
+              (rotary_embed): RotaryEmbedding()
+            )
+            (layer_norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+            (ffn): TransformerFFNLayer(
+              (act_fn): GELU(approximate='none')
+              (ffn_1): Conv1d(256, 1024, kernel_size=(3,), stride=(1,), padding=(1,))
+              (ffn_2): XavierUniformInitLinear(in_features=1024, out_features=256, bias=True)
+            )
+          )
+        )
+      )
+      (layer_norm): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+    )
+    (midi_embed): NormalInitEmbedding(128, 256)
+    (dur_predictor): DurationPredictor(
+      (conv): ModuleList(
+        (0): Sequential(
+          (0): Identity()
+          (1): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+          (2): ReLU()
+          (3): LayerNorm((512,), eps=1e-12, elementwise_affine=True)
+          (4): Dropout(p=0.1, inplace=False)
+        )
+        (1-4): 4 x Sequential(
+          (0): Identity()
+          (1): Conv1d(512, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+          (2): ReLU()
+          (3): LayerNorm((512,), eps=1e-12, elementwise_affine=True)
+          (4): Dropout(p=0.1, inplace=False)
+        )
+      )
+      (linear): Linear(in_features=512, out_features=1, bias=True)
+    )
+  )
+  (rr): RhythmRegulator()
+  (lr): LengthRegulator()
+  (base_pitch_embed): XavierUniformInitLinear(in_features=1, out_features=256, bias=True)
+  (pitch_retake_embed): NormalInitEmbedding(2, 256)
+  (pitch_predictor): PitchRectifiedFlow(
+    (velocity_fn): WaveNet(
+      (input_projection): Conv1d(64, 256, kernel_size=(1,), stride=(1,))
+      (diffusion_embedding): SinusoidalPosEmb()
+      (mlp): Sequential(
+        (0): Linear(in_features=256, out_features=1024, bias=True)
+        (1): Mish()
+        (2): Linear(in_features=1024, out_features=256, bias=True)
+      )
+      (residual_layers): ModuleList(
+        (0): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (1): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(2,), dilation=(2,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (2): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(4,), dilation=(4,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (3): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(8,), dilation=(8,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (4): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(16,), dilation=(16,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (5): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (6): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(2,), dilation=(2,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (7): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(4,), dilation=(4,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (8): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(8,), dilation=(8,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (9): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(16,), dilation=(16,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (10): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (11): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(2,), dilation=(2,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (12): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(4,), dilation=(4,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (13): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(8,), dilation=(8,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (14): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(16,), dilation=(16,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (15): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (16): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(2,), dilation=(2,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (17): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(4,), dilation=(4,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (18): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(8,), dilation=(8,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+        (19): ResidualBlock(
+          (dilated_conv): Conv1d(256, 512, kernel_size=(3,), stride=(1,), padding=(16,), dilation=(16,))
+          (diffusion_projection): Linear(in_features=256, out_features=256, bias=True)
+          (conditioner_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+          (output_projection): Conv1d(256, 512, kernel_size=(1,), stride=(1,))
+        )
+      )
+      (skip_projection): Conv1d(256, 256, kernel_size=(1,), stride=(1,))
+      (output_projection): Conv1d(256, 64, kernel_size=(1,), stride=(1,))
+    )
+  )
+)
+| Copied spk map to checkpoints/regular_variance_v1/spk_map.json.
+Traceback (most recent call last):
+  File "/project/6002780/liampond/CantusSVS/scripts/train.py", line 32, in <module>
+    run_task()
+  File "/project/6002780/liampond/CantusSVS/scripts/train.py", line 28, in run_task
+    task_cls.start()
+  File "/project/6002780/liampond/CantusSVS/basics/base_task.py", line 467, in start
+    train_payload_copy()
+  File "/home/liampond/env-py311/lib/python3.11/site-packages/lightning_utilities/core/rank_zero.py", line 41, in wrapped_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/project/6002780/liampond/CantusSVS/basics/base_task.py", line 462, in train_payload_copy
+    shutil.copy(dict_src, dictionary)
+  File "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/shutil.py", line 419, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/shutil.py", line 258, in copyfile
+    with open(dst, 'wb') as fdst:
+OSError: [Errno 122] Disk quota exceeded

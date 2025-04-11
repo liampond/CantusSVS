@@ -1,0 +1,34 @@
+GPU Check:
+Fri Apr 11 07:45:59 2025       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.54.15              Driver Version: 550.54.15      CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla P100-PCIE-12GB           On  |   00000000:03:00.0 Off |                    0 |
+| N/A   31C    P0             25W /  250W |       0MiB /  12288MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+[INFO] Using config file: ['scripts/train.py', '--config=configs/CantusSVS_variance.yaml', '--exp_name=regular_variance_v1', '--pl_trainer.accelerator=gpu', '--pl_trainer.devices=1', '--pl_trainer.precision=16-mixed']
+
+Traceback (most recent call last):
+  File "/project/6002780/liampond/CantusSVS/scripts/train.py", line 16, in <module>
+    set_hparams()
+  File "/project/6002780/liampond/CantusSVS/utils/hparams.py", line 94, in set_hparams
+    hparams_.update(load_config(args.config))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/project/6002780/liampond/CantusSVS/utils/hparams.py", line 68, in load_config
+    if 'base_config' in hparams_:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
