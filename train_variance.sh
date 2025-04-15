@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --account=def-ichiro            # Your project account
-#SBATCH --gpus-per-node=1               # Request 1 GPU
+#SBATCH --account=def-ichiro            # Project account
+#SBATCH --gpus-per-node=1               # GPUs requested
 #SBATCH --mem=125G                      # Memory per GPU
-#SBATCH --cpus-per-task=8               # Request 8 CPU cores
-#SBATCH --time=00:10:00                 # Request 4 hours of runtime
+#SBATCH --cpus-per-task=8               # CPUs requested
+#SBATCH --time=00:12:00                 # Runtime requested
 #SBATCH --output=variance_training_%j.out  # Log file
 
 # Load required modules
@@ -25,4 +25,5 @@ python scripts/train.py \
   --exp_name=regular_variance_v1 \
   --pl_trainer.accelerator=gpu \
   --pl_trainer.devices=1 \
-  --pl_trainer.precision=16-mixed
+  --pl_trainer.precision=16-mixed \
+  --reset
