@@ -3,7 +3,7 @@
 #SBATCH --gpus-per-node=1               # GPUs requested
 #SBATCH --mem=125G                      # Memory per GPU
 #SBATCH --cpus-per-task=8               # CPUs requested
-#SBATCH --time=00:12:00                 # Runtime requested
+#SBATCH --time=12:00:00                 # Runtime requested
 #SBATCH --output=variance_training_%j.out  # Log file
 
 # Load required modules

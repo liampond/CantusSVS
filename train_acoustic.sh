@@ -3,7 +3,7 @@
 #SBATCH --gpus-per-node=1               # GPUs requested
 #SBATCH --mem=125G			                # Memory per GPU
 #SBATCH --cpus-per-task=8               # CPUs requested
-#SBATCH --time=04:00:00                 # Runtime requested
+#SBATCH --time=10:00:00                 # Runtime requested
 #SBATCH --output=acoustic_training_%j.out  # Log file will be named like training_12345678.out
 
 # Load required modules

@@ -24,7 +24,7 @@ NUM_RUNS=1
 # ========== CHECK ==========
 
 if [ -z "$INPUT_DS" ] || [ -z "$OUTPUT_DIR" ]; then
-  echo "Usage: ./generate_audio.sh path/to/input.ds path/to/output_dir"
+  echo "Usage: ./inference.sh path/to/input.ds path/to/output_dir"
   exit 1
 fi
 
