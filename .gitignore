@@ -20,6 +20,7 @@ __pycache__/
 artifacts/
 data/NNSVS_training_data/
 data/binary/
+outputs/
 
 commands.txt
 19Apr-Commands.sh
