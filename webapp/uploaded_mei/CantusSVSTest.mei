@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-basic.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-basic.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1+basic">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title type="main">Untitled score</title>
+            <title type="subordinate">Subtitle</title>
+            <respStmt>
+               <persName role="composer">Composer / arranger</persName>
+            </respStmt>
+         </titleStmt>
+         <pubStmt>
+            <date isodate="2025-04-22T13:37:09" />
+         </pubStmt>
+      </fileDesc>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef>
+                  <pgHead>
+                     <rend halign="center" valign="top">
+                        <rend type="title" fontsize="x-large">CantusSVS Test</rend>
+                     </rend>
+                     <rend halign="right" valign="bottom">
+                        <rend type="composer">Liam Pond</rend>
+                     </rend>
+                  </pgHead>
+                  <staffGrp>
+                     <staffDef n="1" lines="5" keysig="3f" meter.count="4" meter.unit="4">
+                        <label>Soprano</label>
+                        <labelAbbr>S.</labelAbbr>
+                        <instrDef midi.instrnum="52" />
+                        <clef shape="G" line="2" />
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section xml:id="s1">
+                  <measure xml:id="me4mccx" n="1">
+                     <staff xml:id="m1s1" n="1">
+                        <layer xml:id="m1s1l1" n="1">
+                           <note xml:id="n1n0xuwk" dur="4" pname="g" oct="4">
+                              <verse xml:id="v13ttb0" n="1">
+                                 <syl>This</syl>
+                              </verse>
+                           </note>
+                           <beam>
+                              <note xml:id="n1cyhgfe" dur="16" pname="a" oct="4">
+                                 <verse xml:id="vfwl97w" n="1">
+                                    <syl>is</syl>
+                                 </verse>
+                                 <accid accid.ges="f" />
+                              </note>
+                              <note xml:id="n1x93mne" dur="16" pname="a" oct="4">
+                                 <verse xml:id="vgsfhbb" n="1">
+                                    <syl>a</syl>
+                                 </verse>
+                                 <accid xml:id="a1ojki5z" accid="n" />
+                              </note>
+                              <note xml:id="n187fu41" dur="16" pname="b" oct="4">
+                                 <verse xml:id="vv5cm0h" n="1">
+                                    <syl>test</syl>
+                                 </verse>
+                                 <accid accid.ges="f" />
+                              </note>
+                              <note xml:id="n1eso0gj" dur="16" pname="b" oct="4">
+                                 <verse xml:id="vo5t1qg" n="1">
+                                    <syl>for</syl>
+                                 </verse>
+                                 <accid xml:id="a1sqdo98" accid="n" />
+                              </note>
+                           </beam>
+                           <note xml:id="n1fvz1r0" dur="4" pname="c" oct="5">
+                              <verse xml:id="v7qfwzg" n="1">
+                                 <syl con="d" wordpos="i">ge</syl>
+                              </verse>
+                           </note>
+                           <beam>
+                              <note xml:id="n1wgzuf7" dur="8" pname="b" oct="4">
+                                 <verse xml:id="v1vg49b9" n="1">
+                                    <syl con="d" wordpos="m">ne</syl>
+                                 </verse>
+                                 <accid xml:id="a1kadw2k" accid="f" />
+                              </note>
+                              <note xml:id="nsrbt4a" dur="8" pname="a" oct="4">
+                                 <verse xml:id="vj0r414" n="1">
+                                    <syl con="d" wordpos="m">ra</syl>
+                                 </verse>
+                                 <accid xml:id="a1urwjf7" accid="f" />
+                              </note>
+                           </beam>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure xml:id="m1qrukbu" n="2">
+                     <staff xml:id="m2s1" n="1">
+                        <layer xml:id="m2s1l1" n="1">
+                           <note xml:id="nv661lh" dur="1" pname="g" oct="4">
+                              <verse xml:id="v1q2qa01" n="1">
+                                 <syl wordpos="t">tion</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure xml:id="mrzegov" right="end" n="3">
+                     <staff xml:id="m3s1" n="1">
+                        <layer xml:id="m3s1l1" n="1">
+                           <mRest xml:id="m2huhj7" />
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>
