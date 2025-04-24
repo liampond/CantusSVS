@@ -1,9 +1,9 @@
 from inference.pipeline import run_inference
 from pathlib import Path
 
-ds_path = Path("webapp/tmp_ds/CantusSVSTest.ds")   # change this!
+ds_path = Path("webapp/tmp_ds/CantusSVSTest.ds")
 output_dir = Path("webapp/output")
-title = "CantusSVSTest"                     # no .ds, just the stem
+title = "CantusSVSTest"
 
 wav_path = run_inference(ds_path, output_dir, title)
 print(wav_path)
