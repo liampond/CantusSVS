@@ -11,8 +11,9 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from inference.mei_parser import parse_mei
-from inference.ds_generator import build_ds_input
+from services.mei_parser import parse_mei_for_editor
+from services.ds_builder import build_ds_from_notes
+from components.phoneme_editor import render_phoneme_editor
 from inference.pipeline import run_inference
 
 # Directories
@@ -31,34 +32,48 @@ if mode == "MEI → DS":
     st.header("1. Upload MEI File")
     mei_file = st.file_uploader("Upload your MEI file", type="mei")
     tempo = st.slider("Tempo (BPM)", 30, 300, 120)
-    if st.button("Generate & Synthesize from MEI"):
-        if not mei_file:
-            st.error("Please upload a MEI file.")
-        else:
-            mei_path = UPLOAD_MEI_DIR / mei_file.name
-            with open(mei_path, "wb") as f:
-                f.write(mei_file.getbuffer())
-            try:
-                parsed = parse_mei(mei_path, tempo)
-            except Exception as e:
-                st.error(f"MEI parsing error: {e}")
-                st.stop()
+
+    if mei_file:
+        # Save uploaded MEI
+        mei_path = UPLOAD_MEI_DIR / mei_file.name
+        with open(mei_path, "wb") as f:
+            f.write(mei_file.getbuffer())
+
+        # Parse into note-level data
+        try:
+            notes = parse_mei_for_editor(mei_path, tempo)
+        except Exception as e:
+            st.error(f"MEI parsing error: {e}")
+            st.stop()
+
+        # Render phoneme editor
+        notes_with_phoneme = render_phoneme_editor(notes)
+
+        # Once edited, confirm and synthesize
+        if st.button("Confirm & Synthesize"):
             ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
-            build_ds_input(parsed, ds_path)
-            st.success(f"DS file created: {ds_path.name}")
+            try:
+                build_ds_from_notes(notes_with_phoneme, ds_path)
+                st.success(f"DS file created: {ds_path.name}")
+            except Exception as e:
+                st.error(f"DS generation error: {e}")
+                st.stop()
+
             with st.spinner("Running DiffSinger inference…"):
                 try:
                     wav_path = run_inference(ds_path, OUTPUT_DIR, mei_path.stem)
                 except Exception as e:
                     st.error(f"Inference failed: {e}")
                     st.stop()
+
             st.success("Synthesis complete!")
             st.audio(str(wav_path))
             st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
 elif mode == "Upload .ds":
     st.header("1. Upload .ds File")
-    ds_file = st.file_uploader("Upload your .ds file", type=["ds","json"])
+    ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
+
     if st.button("Synthesize from DS"):
         if not ds_file:
             st.error("Please upload a .ds file.")
@@ -67,12 +82,14 @@ elif mode == "Upload .ds":
             with open(ds_path, "wb") as f:
                 f.write(ds_file.getbuffer())
             st.success(f"DS file uploaded: {ds_path.name}")
+
             with st.spinner("Running DiffSinger inference…"):
                 try:
                     wav_path = run_inference(ds_path, OUTPUT_DIR, ds_path.stem)
                 except Exception as e:
                     st.error(f"Inference failed: {e}")
                     st.stop()
+
             st.success("Synthesis complete!")
             st.audio(str(wav_path))
             st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)

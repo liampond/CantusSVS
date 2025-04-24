@@ -2,6 +2,8 @@
 # PyTorch >= 2.0 is recommended, but 1.12 and 1.13 is compatible.
 # See instructions at https://pytorch.org/get-started/locally/
 
+# Core SVS / DiffSinger dependencies --
+# (install torch manually per https://pytorch.org/get-started/locally/)
 click
 einops>=0.7.0
 h5py
@@ -21,3 +23,7 @@ tensorboard
 tensorboardX
 torchmetrics
 tqdm
+
+# Streamlit app dependencies --
+streamlit
+lxml
