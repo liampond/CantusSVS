@@ -31,5 +31,25 @@ pip install --upgrade pip
 # Install PyTorch manually first (important for compatibility)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-# Install remaining project dependencies
-pip install -r requirements.txt
+# Check if torch and torchvision are installed correctly
+TORCH_VERSION=$(python -c "import torch; print(torch.__version__)" 2>/dev/null || echo "")
+VISION_VERSION=$(python -c "import torchvision; print(torchvision.__version__)" 2>/dev/null || echo "")
+
+if [ -z "$TORCH_VERSION" ] || [ -z "$VISION_VERSION" ]; then
+  echo "❗ Error: torch or torchvision not installed correctly."
+  exit 1
+fi
+
+echo "✅ torch version: $TORCH_VERSION"
+echo "✅ torchvision version: $VISION_VERSION"
+
+# Install remaining project dependencies unless in dev mode
+if [ "$dev" != "1" ]; then
+  echo "Installing project requirements..."
+  pip install -r requirements.txt
+else
+  echo "⚡ Dev mode active: Skipping pip install -r requirements.txt"
+fi
+
+# Final success message
+echo "🎉 Environment setup complete! Ready to go."
