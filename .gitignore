@@ -2,9 +2,11 @@ artifacts/
 checkpoints/
 venv/
 .venv/
+env-py311/
 *.swp
 data/
 DiffSinger/
+training_logs/
 training_*.out
 __pycache__/
 

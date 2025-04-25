@@ -1,9 +1,11 @@
 # It is recommended to install PyTorch manually.
-# PyTorch >= 2.0 is recommended, but 1.12 and 1.13 is compatible.
+# PyTorch >= 2.0 is recommended, but 1.12 and 1.13 are compatible.
 # See instructions at https://pytorch.org/get-started/locally/
+# 
+# IMPORTANT: Install torch, torchvision, torchaudio manually BEFORE installing this file.
+# Do NOT pip install this file unless your environment already has PyTorch.
 
-# Core SVS / DiffSinger dependencies --
-# (install torch manually per https://pytorch.org/get-started/locally/)
+# Core SVS / DiffSinger dependencies
 click
 einops>=0.7.0
 h5py
@@ -21,9 +23,14 @@ resampy
 scipy>=1.10.0
 tensorboard
 tensorboardX
-torchmetrics
 tqdm
 
-# Streamlit app dependencies --
+# Torch-related utilities
+# (requires torch already installed)
+torchmetrics
+
+# Streamlit app dependencies
 streamlit
 lxml
+tornado
+pandas
