@@ -1,6 +1,6 @@
 # Load necessary modules only if not already loaded
 if ! module list 2>&1 | grep -q gcc; then
-  module load gcc/12.2.0
+  module load gcc/12.3
 fi
 
 if ! module list 2>&1 | grep -q arrow; then
@@ -25,11 +25,8 @@ if [ -z "$VIRTUAL_ENV" ]; then
   exit 1
 fi
 
-# Upgrade pip
 pip install --upgrade pip
-
-# Install PyTorch manually first (important for compatibility)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install --no-index torch torchvision torchaudio
 
 # Check if torch and torchvision are installed correctly
 TORCH_VERSION=$(python -c "import torch; print(torch.__version__)" 2>/dev/null || echo "")
@@ -51,5 +48,4 @@ else
   echo "⚡ Dev mode active: Skipping pip install -r requirements.txt"
 fi
 
-# Final success message
 echo "🎉 Environment setup complete! Ready to go."
