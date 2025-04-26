@@ -7,7 +7,11 @@ if ! module list 2>&1 | grep -q arrow; then
   module load arrow/19.0.1
 fi
 
-# Create virtual environment only if it doesn't exist
+if ! module list 2>&1 | grep -q cuda; then
+  module load cuda
+fi
+
+# Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
   echo "Creating virtual environment..."
   python3.11 -m venv venv
@@ -20,13 +24,19 @@ source venv/bin/activate
 
 # Verify if virtual environment is active
 if [ -z "$VIRTUAL_ENV" ]; then
-  echo "❗ Warning: Virtual environment is not active!"
-  echo "Please activate it manually with: source venv/bin/activate"
+  echo "❗ Error: Virtual environment is not active after activation attempt."
+  echo "Exiting to avoid broken installations."
   exit 1
 fi
 
+# Upgrade pip
 pip install --upgrade pip
+
+# Install PyTorch manually first (important for compatibility)
 pip install --no-index torch torchvision torchaudio
+
+# Load scipy-stack module to support scientific libraries
+module load scipy-stack
 
 # Check if torch and torchvision are installed correctly
 TORCH_VERSION=$(python -c "import torch; print(torch.__version__)" 2>/dev/null || echo "")
@@ -48,4 +58,5 @@ else
   echo "⚡ Dev mode active: Skipping pip install -r requirements.txt"
 fi
 
+# Final success message
 echo "🎉 Environment setup complete! Ready to go."

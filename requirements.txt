@@ -19,6 +19,7 @@ onnxsim~=0.4.36
 praat-parselmouth==0.4.3
 pyworld==0.3.4
 PyYAML
+pyyaml
 resampy
 scipy>=1.10.0
 tensorboard
@@ -32,5 +33,4 @@ torchmetrics
 # Streamlit app dependencies
 streamlit
 lxml
-tornado
 pandas
