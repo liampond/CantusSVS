@@ -28,7 +28,17 @@ for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
 
 st.title("CantusSVS: Latin Singing Voice Synthesis")
 
-mode = st.radio("Select input mode:", ["MEI → DS", "Upload .ds"])
+st.markdown("""
+**Choose your input file type:**
+- **MEI** (Music Encoding Initiative)
+- **DS** (DiffSinger file)
+""")
+
+filetype = st.selectbox(
+    "Select file type:",
+    ["MEI", "DS"],
+    help="**MEI**: Music Encoding Initiative\n\n**DS**: DiffSinger format"
+)
 
 def handle_exception(context_message):
     """Helper to log full traceback in console and show error nicely in app."""
@@ -39,7 +49,7 @@ def handle_exception(context_message):
     print("="*30 + "\n")
     st.stop()
 
-if mode == "MEI → DS":
+if filetype == "MEI":
     st.header("1. Upload MEI File")
     mei_file = st.file_uploader("Upload your MEI file", type="mei")
     tempo = st.slider("Tempo (BPM)", 30, 300, 120)
@@ -87,7 +97,7 @@ if mode == "MEI → DS":
             st.audio(str(wav_path))
             st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
-elif mode == "Upload .ds":
+elif filetype == 'DS':
     st.header("1. Upload .ds File")
     ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
 

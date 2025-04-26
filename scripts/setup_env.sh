@@ -53,6 +53,7 @@ echo "✅ torchvision version: $VISION_VERSION"
 
 # Install remaining project dependencies unless in dev mode
 if [ "$dev" != "1" ]; then
+  source venv/bin/activate
   echo "Installing project requirements..."
   pip install -r requirements.txt
 else
