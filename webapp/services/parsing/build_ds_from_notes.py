@@ -22,10 +22,10 @@ def build_ds_from_notes(notes_with_phoneme, output_path: Path):
 
     ds_input = {
         "ph_seq": " ".join(ph_seq),
-        "ph_num": " ".join(["1"] * len(ph_seq)),
+        "ph_num": " ".join(["1"] * len(ph_seq)),  # ← 🔥 ph_num must be a string of 1s
         "note_seq": " ".join(note_seq),
-        "note_dur": " ".join(str(d) for d in note_dur),
-        "note_slur": " ".join(str(s) for s in note_slur),
+        "note_dur": " ".join(str(d) for d in note_dur),  # ← 🔥 note_dur, not note_dur_seq
+        "note_slur": " ".join(str(s) for s in note_slur),  # ← 🔥 note_slur, not is_slur_seq
         "input_type": "phoneme"
     }
 

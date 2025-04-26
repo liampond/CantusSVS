@@ -9,7 +9,7 @@ from utils.hparams import set_hparams, hparams
 from inference.ds_variance import DiffSingerVarianceInfer
 from inference.ds_acoustic import DiffSingerAcousticInfer
 from utils.infer_utils import parse_commandline_spk_mix, trans_key
-from webapp.services.ds_validator import validate_ds
+from webapp.services.parsing.ds_validator import validate_ds
 
 def run_inference(
     ds_path: Path,

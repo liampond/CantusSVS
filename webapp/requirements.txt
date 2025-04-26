@@ -1,6 +1,0 @@
-streamlit
-lxml
-click
-PyYAML
-tqdm
-numpy

@@ -12,8 +12,8 @@ os.environ['STREAMLIT_SERVER_FILE_WATCHER_TYPE'] = 'none'
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from webapp.services.mei_parser import parse_mei_for_editor
-from webapp.services.ds_builder import build_ds_from_notes
+from webapp.services.parsing.mei_parser import parse_mei_for_editor
+from webapp.services.parsing.ds_builder import build_ds_from_notes
 from webapp.services.parsing.ds_validator import validate_ds
 from webapp.components.phoneme_editor import render_phoneme_editor
 from inference.pipeline import run_inference

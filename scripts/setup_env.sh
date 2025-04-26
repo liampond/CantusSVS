@@ -34,6 +34,7 @@ pip install --upgrade pip
 
 # Install PyTorch manually first (important for compatibility)
 pip install --no-index torch torchvision torchaudio
+pip install streamlit tornado pytest lxml pyyaml lightning
 
 # Load scipy-stack module to support scientific libraries
 module load scipy-stack

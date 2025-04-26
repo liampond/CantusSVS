@@ -1,7 +1,7 @@
 # webapp/components/phoneme_editor.py
 from typing import List, Dict
 import streamlit as st
-from webapp.services.parsing.phoneme_dict import PHONEMES
+from webapp.services.phonemes.phoneme_dict import PHONEMES
 
 
 def default_phoneme_for_lyric(lyric: str) -> str:

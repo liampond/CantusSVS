@@ -22,4 +22,5 @@ clean:
 
 # Run the Streamlit app
 run:
-	streamlit run webapp/app.py
+	source venv/bin/activate && streamlit run webapp/app.py
+
