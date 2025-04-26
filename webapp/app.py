@@ -1,19 +1,21 @@
 import os
-# Disable Streamlit file watcher to avoid Torch path issues
-os.environ['STREAMLIT_SERVER_FILE_WATCHER_TYPE'] = 'none'
-
 import streamlit as st
 import shutil
+import traceback
 from pathlib import Path
 import sys
+
+# Disable Streamlit file watcher to avoid Torch path issues
+os.environ['STREAMLIT_SERVER_FILE_WATCHER_TYPE'] = 'none'
 
 # Ensure project root is on the import path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from services.mei_parser import parse_mei_for_editor
-from services.ds_builder import build_ds_from_notes
-from components.phoneme_editor import render_phoneme_editor
+from webapp.services.mei_parser import parse_mei_for_editor
+from webapp.services.ds_builder import build_ds_from_notes
+from webapp.services.parsing.ds_validator import validate_ds
+from webapp.components.phoneme_editor import render_phoneme_editor
 from inference.pipeline import run_inference
 
 # Directories
@@ -27,6 +29,15 @@ for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
 st.title("CantusSVS: Latin Singing Voice Synthesis")
 
 mode = st.radio("Select input mode:", ["MEI → DS", "Upload .ds"])
+
+def handle_exception(context_message):
+    """Helper to log full traceback in console and show error nicely in app."""
+    st.error(f"{context_message}. See console for details.")
+    print("\n" + "="*30)
+    print(f"Exception during {context_message}")
+    traceback.print_exc()
+    print("="*30 + "\n")
+    st.stop()
 
 if mode == "MEI → DS":
     st.header("1. Upload MEI File")
@@ -42,9 +53,8 @@ if mode == "MEI → DS":
         # Parse into note-level data
         try:
             notes = parse_mei_for_editor(mei_path, tempo)
-        except Exception as e:
-            st.error(f"MEI parsing error: {e}")
-            st.stop()
+        except Exception:
+            handle_exception("MEI parsing")
 
         # Render phoneme editor
         notes_with_phoneme = render_phoneme_editor(notes)
@@ -54,17 +64,24 @@ if mode == "MEI → DS":
             ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
             try:
                 build_ds_from_notes(notes_with_phoneme, ds_path)
+
+                # Validate the generated DS
+                from webapp.services.parsing.ds_validator import validate_ds
+                import json
+                with open(ds_path, "r", encoding="utf-8") as f:
+                    ds_data = json.load(f)
+                validate_ds(ds_data)
+
                 st.success(f"DS file created: {ds_path.name}")
-            except Exception as e:
-                st.error(f"DS generation error: {e}")
-                st.stop()
+
+            except Exception:
+                handle_exception("DS generation or validation")
 
             with st.spinner("Running DiffSinger inference…"):
                 try:
                     wav_path = run_inference(ds_path, OUTPUT_DIR, mei_path.stem)
-                except Exception as e:
-                    st.error(f"Inference failed: {e}")
-                    st.stop()
+                except Exception:
+                    handle_exception("inference")
 
             st.success("Synthesis complete!")
             st.audio(str(wav_path))
@@ -81,14 +98,21 @@ elif mode == "Upload .ds":
             ds_path = UPLOAD_DS_DIR / ds_file.name
             with open(ds_path, "wb") as f:
                 f.write(ds_file.getbuffer())
+            # Validate uploaded DS
+            with open(ds_path, "r", encoding="utf-8") as f:
+                ds_data = json.load(f)
+            try:
+                validate_ds(ds_data)
+            except Exception as e:
+                st.error(f"Uploaded DS file is invalid: {e}")
+                st.stop()
             st.success(f"DS file uploaded: {ds_path.name}")
 
             with st.spinner("Running DiffSinger inference…"):
                 try:
                     wav_path = run_inference(ds_path, OUTPUT_DIR, ds_path.stem)
-                except Exception as e:
-                    st.error(f"Inference failed: {e}")
-                    st.stop()
+                except Exception:
+                    handle_exception("inference")
 
             st.success("Synthesis complete!")
             st.audio(str(wav_path))

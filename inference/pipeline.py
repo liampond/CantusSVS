@@ -9,6 +9,7 @@ from utils.hparams import set_hparams, hparams
 from inference.ds_variance import DiffSingerVarianceInfer
 from inference.ds_acoustic import DiffSingerAcousticInfer
 from utils.infer_utils import parse_commandline_spk_mix, trans_key
+from webapp.services.ds_validator import validate_ds
 
 def run_inference(
     ds_path: Path,
@@ -35,6 +36,13 @@ def run_inference(
         params = json.load(f)
     if not isinstance(params, list):
         params = [params]
+        
+    # 🔥 Validate loaded DS files
+    for p in params:
+        try:
+            validate_ds(p)
+        except Exception as e:
+            raise ValueError(f"Invalid input DS file: {e}")
 
     # 3) Ensure ph_seq present
     for p in params:
@@ -60,7 +68,7 @@ def run_inference(
     set_hparams(print_hparams=False)
     print("[pipeline] Variance hparams keys:", sorted(hparams.keys()))
 
-    var_infer = DiffSingerVarianceInfer(ckpt_steps=None, predictions={"dur","pitch"})
+    var_infer = DiffSingerVarianceInfer(ckpt_steps=None, predictions={"dur", "pitch"})
     ds_out = output_dir / f"{title}.ds"
     var_infer.run_inference(params, out_dir=output_dir, title=title, num_runs=1, seed=seed)
     if not ds_out.exists():
@@ -71,6 +79,13 @@ def run_inference(
         params = json.load(f)
     if not isinstance(params, list):
         params = [params]
+
+    # 🔥 Validate variance output DS
+    for p in params:
+        try:
+            validate_ds(p)
+        except Exception as e:
+            raise ValueError(f"Invalid DS after variance inference: {e}")
 
     # ==== Acoustic Inference ==== #
     print(f"[pipeline] Loading acoustic exp: {acoustic_exp}")

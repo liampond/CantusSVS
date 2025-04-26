@@ -25,7 +25,8 @@ def build_ds_from_notes(notes_with_phoneme, output_path: Path):
         "note_seq": " ".join(note_seq),
         "note_dur_seq": " ".join(str(d) for d in note_dur_seq),
         "is_slur_seq": " ".join(str(s) for s in is_slur_seq),
-        "input_type": "phoneme"
+        "input_type": "phoneme",
+        "ph_num": len(ph_seq),
     }
 
     # Write JSON file
