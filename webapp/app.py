@@ -7,7 +7,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
 
-# Disable Streamlit file watcher to avoid Torch path issues
+# Disable Streamlit file watcher
 os.environ['STREAMLIT_SERVER_FILE_WATCHER_TYPE'] = 'none'
 
 # Ensure project root is on the import path
@@ -29,56 +29,61 @@ OUTPUT_DIR = PROJECT_ROOT / "webapp/output"
 for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
-# Page config
+# Config
 st.set_page_config(page_title="CantusSVS", layout="wide")
+
+# CSS styling
+st.markdown("""
+<style>
+html, body, [class*="css"] { font-size: 18px !important; }
+div[data-testid="stSelectbox"] label,
+div[data-testid="stNumberInput"] label,
+div[data-testid="stTextInput"] label {
+    font-size: 13px; padding-bottom: 0px;
+}
+div[data-testid="stSlider"] label { font-size: 0px; }
+button[kind="secondary"] {
+    height: 32px; width: 32px;
+    font-size: 20px; background-color: black !important;
+    color: white !important; margin-top: 5px;
+}
+div.stButton > button:first-child {
+    background-color: black; color: white;
+    font-size: 16px; padding: 6px 24px;
+}
+section[data-testid="stFileUploaderDropzone"] {
+    padding: 2rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Phoneme mappings
+phoneme_display_map = {
+    "ap": "Pause",
+    "br": "Breath"
+}
+display_to_phoneme = {v: k for k, v in phoneme_display_map.items()}
+full_phoneme_list_display = [phoneme_display_map.get(p, p) for p in permitted_phonemes]
+
+# Pitch list D4-D5
+allowed_pitches = ["D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"]
 
 # Title
 st.title("CantusSVS: Latin Singing Voice Synthesis")
 
-# Styling tweaks
-st.markdown("""
-    <style>
-    html, body, [class*="css"]  { font-size: 18px !important; }
-    div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label,
-    div[data-testid="stTextInput"] label { font-size: 13px; padding-bottom: 0px; }
-    div[data-testid="stSlider"] label { font-size: 0px; }
-    button[kind="secondary"] { height: 32px; width: 32px; padding: 0px; font-size: 20px; margin-top: 5px; }
-    div.stButton > button:first-child { background-color: #28a745; color: white; font-size: 18px; height: 50px; width: 100%; border-radius: 8px; }
-    </style>
-""", unsafe_allow_html=True)
+st.markdown("Welcome to CantusSVS! Upload or use our demo, edit phonemes, and synthesize Latin singing voice.\n---")
 
-# Intro text
-st.markdown("""
-# Welcome to CantusSVS
-
-CantusSVS lets you synthesize singing voice from musical scores using the DiffSinger system.
-
----
-
-### What this app does
-- Upload a **MEI** file and edit phonemes if needed
-- Or upload a prepared **DS** (DiffSinger) file
-
-### How to use it
-1. Select MEI or DS
-2. Upload or use demo MEI
-3. Edit phonemes (optional)
-4. Click Confirm & Synthesize
-
----
-""")
-
-# Input type selector
-filetype = st.selectbox("Select file type:", ["MEI", "DS"], help="**MEI**: Music Encoding Initiative\n\n**DS**: DiffSinger format")
+filetype = st.selectbox("Select file type:", ["MEI", "DS"])
 
 def handle_exception(context_message):
-    st.error(f"{context_message}. See console for details.")
+    st.error(f"{context_message}. See console.")
     print("\n" + "="*30)
     print(f"Exception during {context_message}")
     traceback.print_exc()
     print("="*30 + "\n")
     st.stop()
 
+# MEI Mode
 if filetype == "MEI":
     st.header("1. Select MEI Source")
     use_demo = st.checkbox("Use demo MEI file (CantusSVSTest.mei)", value=False)
@@ -87,7 +92,7 @@ if filetype == "MEI":
     if use_demo:
         mei_path = UPLOAD_MEI_DIR / "CantusSVSTest.mei"
         if not mei_path.exists():
-            st.error("Demo MEI file not found.")
+            st.error("Demo MEI file missing.")
             st.stop()
         with open(mei_path, "rb") as f:
             mei_file_bytes = f.read()
@@ -107,74 +112,129 @@ if filetype == "MEI":
     except Exception:
         handle_exception("MEI parsing")
 
-    # Build syllable groups
+    # Save original notes
+    if "original_raw_notes" not in st.session_state:
+        st.session_state.original_raw_notes = raw_notes
+
+    # Tempo rescaling
     syllable_groups = []
     quarter_duration = 60 / tempo
-    for note in raw_notes:
+
+    for note in st.session_state.original_raw_notes:
         syllable_text = note["lyric"]
         pitch = note["pitch"]
         phonemes = list(syllable_text) if syllable_text else ["a"]
         syllable = []
         for ph in phonemes:
-            syllable.append({"phoneme": ph if ph in permitted_phonemes else "a", "duration": note["duration"] / len(phonemes), "pitch": pitch})
-        syllable_groups.append({"syllable": syllable_text, "phonemes": syllable})
+            syllable.append({
+                "phoneme": ph if ph in permitted_phonemes else "a",
+                "duration": max(0.05, (note["duration"] / len(phonemes)) * (60/tempo)),
+                "pitch": pitch if pitch in allowed_pitches else "D4"
+            })
+        syllable_groups.append({
+            "syllable": syllable_text,
+            "phonemes": syllable
+        })
+
+    # Save syllables
+    if "edited_syllables" not in st.session_state:
+        st.session_state.edited_syllables = syllable_groups
 
     # Verovio viewer
     st.subheader("Score Preview")
     components.html(f"""
-    <div class="panel-body">
-        <div id="app" class="panel" style="border: 1px solid lightgray; min-height: 400px;"></div>
-    </div>
+    <div id="app" style="border: 1px solid lightgray; min-height: 400px;"></div>
     <script type="module">
         import 'https://editor.verovio.org/javascript/app/verovio-app.js';
-        const app = new Verovio.App(document.getElementById("app"), {{ defaultView: 'document', documentZoom: 3 }});
+        const app = new Verovio.App(document.getElementById("app"), {{
+            defaultView: 'document',
+            documentZoom: 4
+        }});
         app.loadData(`{mei_text}`);
     </script>
-    """, height=450)
+    """, height=500)
 
-    # Editor
+    # Phoneme editor
     st.subheader("Edit Phonemes, Durations, and Pitches", divider="gray")
-    edited_syllables = []
+    updated_syllables = []
 
-    for idx, group in enumerate(syllable_groups):
+    for idx, group in enumerate(st.session_state.edited_syllables):
         st.markdown(f"##### {group['syllable'].capitalize()}")
         new_phonemes = []
+
         for j, ph in enumerate(group["phonemes"]):
             col1, col2, col3, col4, col5 = st.columns([2, 1, 2, 2, 1])
+
             with col1:
-                phoneme = st.selectbox(f"Phoneme {idx}-{j}", permitted_phonemes, index=permitted_phonemes.index(ph["phoneme"]) if ph["phoneme"] in permitted_phonemes else 0, key=f"phoneme_{idx}_{j}")
+                phoneme_display = st.selectbox(
+                    "Phoneme",
+                    full_phoneme_list_display,
+                    index=full_phoneme_list_display.index(phoneme_display_map.get(ph["phoneme"], ph["phoneme"])),
+                    key=f"phoneme_{idx}_{j}"
+                )
+                phoneme_internal = display_to_phoneme.get(phoneme_display, phoneme_display)
+
             with col2:
-                duration = st.number_input(f"Duration {idx}-{j}", min_value=0.05, max_value=5.0, value=ph["duration"], step=0.01, format="%.2f", key=f"duration_num_{idx}_{j}")
+                duration = st.number_input(
+                    "Duration",
+                    min_value=0.05,
+                    max_value=5.0,
+                    value=ph["duration"],
+                    step=0.01,
+                    format="%.2f",
+                    key=f"duration_num_{idx}_{j}"
+                )
             with col3:
-                duration_slider = st.slider(f"Slider {idx}-{j}", min_value=0.05, max_value=5.0, value=duration, step=0.01, key=f"duration_slider_{idx}_{j}")
+                duration_slider = st.slider(
+                    "Duration slider",
+                    min_value=0.05,
+                    max_value=5.0,
+                    value=duration,
+                    step=0.01,
+                    key=f"duration_slider_{idx}_{j}"
+                )
             if duration_slider != duration:
                 duration = duration_slider
-                st.session_state[f"duration_num_{idx}_{j}"] = duration
+
             with col4:
-                pitch = st.text_input(f"Pitch {idx}-{j}", value=ph["pitch"], key=f"pitch_{idx}_{j}")
-                if not re.match(r"^[A-G][#b]?[0-8]$", pitch):
-                    st.caption("⚠️ Format: C4, F#3, Bb2")
+                pitch = st.selectbox(
+                    "Pitch",
+                    allowed_pitches,
+                    index=allowed_pitches.index(ph["pitch"]) if ph["pitch"] in allowed_pitches else 0,
+                    key=f"pitch_{idx}_{j}"
+                )
+
             with col5:
                 if len(group["phonemes"]) > 1:
                     if st.button("❌", key=f"remove_{idx}_{j}"):
                         continue
-            new_phonemes.append({"phoneme": phoneme, "duration": duration, "pitch": pitch})
 
-        if len(new_phonemes) < 1:
-            st.error("Each syllable must have at least one phoneme.")
-            new_phonemes.append({"phoneme": "a", "duration": quarter_duration, "pitch": group["phonemes"][0]["pitch"]})
+            new_phonemes.append({
+                "phoneme": phoneme_internal,
+                "duration": duration,
+                "pitch": pitch
+            })
 
-        if st.button("➕ Add phoneme", key=f"add_{idx}"):
-            new_phonemes.append({"phoneme": "a", "duration": quarter_duration, "pitch": new_phonemes[-1]["pitch"]})
+        if st.button(f"➕ Add phoneme", key=f"add_{idx}"):
+            new_phonemes.append({
+                "phoneme": "a",
+                "duration": quarter_duration,
+                "pitch": new_phonemes[-1]["pitch"] if new_phonemes else "D4"
+            })
 
-        edited_syllables.append({"syllable": group["syllable"], "phonemes": new_phonemes})
+        updated_syllables.append({
+            "syllable": group["syllable"],
+            "phonemes": new_phonemes
+        })
         st.divider()
+
+    st.session_state.edited_syllables = updated_syllables
 
     # Confirm and synthesize
     if st.button("✅ Confirm & Synthesize"):
         ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
         try:
-            all_phonemes = [ph for syllable in edited_syllables for ph in syllable["phonemes"]]
+            all_phonemes = [ph for syllable in updated_syllables for ph in syllable["phonemes"]]
             build_ds_from_notes(all_phonemes, ds_path)
             with open(ds_path, "r", encoding="utf-8") as f:
                 ds_data = json.load(f)
@@ -193,6 +253,7 @@ if filetype == "MEI":
         st.audio(str(wav_path))
         st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
+# DS Mode
 elif filetype == "DS":
     st.header("1. Upload DS File")
     ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
@@ -200,29 +261,31 @@ elif filetype == "DS":
     if st.button("Synthesize from DS"):
         if not ds_file:
             st.error("Please upload a .ds file.")
-        else:
-            ds_path = UPLOAD_DS_DIR / ds_file.name
-            with open(ds_path, "wb") as f:
-                f.write(ds_file.getbuffer())
-            with open(ds_path, "r", encoding="utf-8") as f:
-                ds_data = json.load(f)
+            st.stop()
+
+        ds_path = UPLOAD_DS_DIR / ds_file.name
+        with open(ds_path, "wb") as f:
+            f.write(ds_file.getbuffer())
+        with open(ds_path, "r", encoding="utf-8") as f:
+            ds_data = json.load(f)
+
+        try:
+            validate_ds(ds_data)
+        except Exception as e:
+            st.error(f"Invalid DS file: {e}")
+            st.stop()
+
+        with st.spinner("Running DiffSinger inference…"):
             try:
-                validate_ds(ds_data)
-            except Exception as e:
-                st.error(f"Uploaded DS file is invalid: {e}")
-                st.stop()
-            st.success(f"DS file uploaded: {ds_path.name}")
+                wav_path = run_inference(ds_path, OUTPUT_DIR, ds_path.stem)
+            except Exception:
+                handle_exception("inference")
 
-            with st.spinner("Running DiffSinger inference…"):
-                try:
-                    wav_path = run_inference(ds_path, OUTPUT_DIR, ds_path.stem)
-                except Exception:
-                    handle_exception("inference")
+        st.success("Synthesis complete!")
+        st.audio(str(wav_path))
+        st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
-            st.success("Synthesis complete!")
-            st.audio(str(wav_path))
-            st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
-
+# Clear all
 if st.button("Clear All Files"):
     for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
         shutil.rmtree(d, ignore_errors=True)
