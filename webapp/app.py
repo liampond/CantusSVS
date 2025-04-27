@@ -49,7 +49,7 @@ st.markdown("""
 
 # Intro text
 st.markdown("""
-# Welcome to CantusSVS \ud83c\udfb6
+# Welcome to CantusSVS
 
 CantusSVS lets you synthesize singing voice from musical scores using the DiffSinger system.
 
