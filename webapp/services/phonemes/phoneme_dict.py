@@ -1,4 +1,4 @@
-# webapp/services/phoneme_dict.py
+# webapp/services/phonemes/phoneme_dict.py
 # List of allowed phonemes for the CantusSVS editor (one-phoneme-per-note mode)
 # 'ap' = pause, 'br' = breath
 PHONEMES = [
