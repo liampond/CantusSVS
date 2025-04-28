@@ -66,6 +66,7 @@ def run_inference(
     print(f"[pipeline] Loading variance exp: {variance_exp}")
     sys.argv = ["", "--exp_name", variance_exp, "--infer"]
     set_hparams(print_hparams=False)
+    print("[DEBUG] hparams after loading:", hparams)
     print("[pipeline] Variance hparams keys:", sorted(hparams.keys()))
 
     var_infer = DiffSingerVarianceInfer(ckpt_steps=None, predictions={"dur", "pitch"})

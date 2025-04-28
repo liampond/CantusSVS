@@ -37,30 +37,19 @@ st.markdown("""
 html, body, [class*="css"] { font-size: 18px !important; }
 div[data-testid="stSelectbox"] label,
 div[data-testid="stNumberInput"] label,
-div[data-testid="stTextInput"] label {
-    font-size: 13px; padding-bottom: 0px;
-}
+div[data-testid="stTextInput"] label { font-size: 13px; padding-bottom: 0px; }
 div[data-testid="stSlider"] label { font-size: 0px; }
-button[kind="secondary"] {
-    height: 32px; width: 32px;
-    font-size: 20px; background-color: black !important;
-    color: white !important; margin-top: 5px;
-}
 div.stButton > button:first-child {
     background-color: black; color: white;
-    font-size: 16px; padding: 6px 24px;
+    font-size: 14px; padding: 4px 10px;
+    border-radius: 8px;
 }
-section[data-testid="stFileUploaderDropzone"] {
-    padding: 2rem;
-}
+section[data-testid="stFileUploaderDropzone"] { padding: 2rem; }
 </style>
 """, unsafe_allow_html=True)
 
 # Phoneme mappings
-phoneme_display_map = {
-    "ap": "Pause",
-    "br": "Breath"
-}
+phoneme_display_map = { "ap": "Pause", "br": "Breath" }
 display_to_phoneme = {v: k for k, v in phoneme_display_map.items()}
 full_phoneme_list_display = [phoneme_display_map.get(p, p) for p in permitted_phonemes]
 
@@ -73,7 +62,7 @@ st.title("CantusSVS: Latin Singing Voice Synthesis")
 st.markdown("""
 # About CantusSVS
 
-CantusSVS is a web-based Singing Voice Synthesis (SVS) system designed for composers and musicians to synthesize Latin chant audio from a custom musical score.  
+CantusSVS is a web-based Singing Voice Synthesis (SVS) system designed for composers and musicians to synthesize Latin chant audio from a custom musical score.
 Built on top of the DiffSinger AI model, CantusSVS enables detailed, precise control over melody, rhythm, phonemes, and timing without any programming knowledge required.
 
 ---
@@ -111,14 +100,14 @@ In the CantusSVS web app:
 
 ## 5. Edit Phonemes, Durations, and Pitches
 
-CantusSVS automatically suggests phoneme splits for each syllable.  
+CantusSVS automatically suggests phoneme splits for each syllable.
 You will have the opportunity to review phonemes, durations, and pitches.
 
 ## 6. Synthesize the Audio
 
 When you're done:
 
-- Click **Confirm & Synthesize**
+- Click **Confirm**
 - CantusSVS will create a `.ds` file
 - It processes the file through pretrained DiffSinger models
 - The synthesized chant will be generated
@@ -133,14 +122,13 @@ After synthesis you can either listen to your chant directly in the app or downl
 
 # About DiffSinger
 
-DiffSinger is a deep learning-based Singing Voice Synthesis (SVS) framework that uses diffusion models to generate natural singing voices from symbolic musical input.  
+DiffSinger is a deep learning-based Singing Voice Synthesis (SVS) framework that uses diffusion models to generate natural singing voices from symbolic musical input.
 It improves quality over earlier SVS systems and allows higher fidelity control over timing, pitch, and vocal expression.
 
 CantusSVS uses a custom-trained DiffSinger model specifically adapted for medieval chant synthesis.
 
 ---
-
-""")
+""", unsafe_allow_html=True)
 
 filetype = st.selectbox("Select file type:", ["MEI", "DS"])
 
@@ -152,7 +140,6 @@ def handle_exception(context_message):
     print("="*30 + "\n")
     st.stop()
 
-# MEI Mode
 if filetype == "MEI":
     st.header("1. Select MEI Source")
     use_demo = st.checkbox("Use demo MEI file (CantusSVSDemo.mei)", value=False)
@@ -182,14 +169,7 @@ if filetype == "MEI":
         handle_exception("MEI parsing")
 
     if use_demo:
-        fixed_syllables = [
-            ["m", "u", "s"],
-            ["i"],
-            ["c", "a"],
-            ["e", "s", "t"],
-            ["v", "i"],
-            ["t", "a"]
-        ]
+        fixed_syllables = [["m", "u", "s"], ["i"], ["c", "a"], ["e", "s", "t"], ["v", "i"], ["t", "a"]]
         fixed_note_seq = "G#4 G#4 F#4 F#4 G#4 G#4 A4 A4 A4 A4 A4 G#4 G#4".split()
         fixed_note_dur = [0.1, 0.5, 0.1, 0.5, 0.1, 0.5, 0.5, 0.05, 0.05, 0.1, 0.9, 0.1, 0.9]
 
@@ -202,17 +182,12 @@ if filetype == "MEI":
                 idx += 1
             syllable_text = ''.join(syllable_phonemes)
             pitch = fixed_note_seq[idx - 1]
-            raw_notes.append({
-                "lyric": syllable_text,
-                "pitch": pitch,
-                "duration": syllable_duration
-            })
+            raw_notes.append({"lyric": syllable_text, "pitch": pitch, "duration": syllable_duration})
 
-    if "original_raw_notes" not in st.session_state:
-        st.session_state.original_raw_notes = raw_notes
+    # Always update session state
+    st.session_state.original_raw_notes = raw_notes
 
     syllable_groups = []
-
     for note in st.session_state.original_raw_notes:
         syllable_text = note["lyric"]
         pitch = note["pitch"]
@@ -224,26 +199,13 @@ if filetype == "MEI":
                 "duration": max(0.05, (note["duration"] / len(phonemes)) * (60/tempo)),
                 "pitch": pitch if pitch in allowed_pitches else "D4"
             })
-        syllable_groups.append({
-            "syllable": syllable_text,
-            "phonemes": syllable
-        })
+        syllable_groups.append({"syllable": syllable_text, "phonemes": syllable})
 
     if "edited_syllables" not in st.session_state:
         st.session_state.edited_syllables = syllable_groups
 
     st.subheader("Score Preview")
-    components.html(f"""
-    <div id=\"app\" style=\"border: 1px solid lightgray; min-height: 400px;\"></div>
-    <script type=\"module\">
-        import 'https://editor.verovio.org/javascript/app/verovio-app.js';
-        const app = new Verovio.App(document.getElementById("app"), {{
-            defaultView: 'document',
-            documentZoom: 4
-        }});
-        app.loadData(`{mei_text}`);
-    </script>
-    """, height=500)
+    components.html(f"""<div id=\"app\" style=\"border: 1px solid lightgray; min-height: 400px;\"></div><script type=\"module\">import 'https://editor.verovio.org/javascript/app/verovio-app.js';const app=new Verovio.App(document.getElementById(\"app\"),{{defaultView:'document',documentZoom:4}});app.loadData(`{mei_text}`);</script>""", height=500)
 
     st.subheader("Edit Phonemes, Durations, and Pitches", divider="gray")
     updated_syllables = []
@@ -251,61 +213,28 @@ if filetype == "MEI":
     for idx, group in enumerate(st.session_state.edited_syllables):
         st.markdown(f"#### {group['syllable'].capitalize()}")
         new_phonemes = []
-
         for j, ph in enumerate(group["phonemes"]):
             col1, col2, col3 = st.columns([3, 3, 3])
-
             with col1:
-                phoneme_display = st.selectbox(
-                    "Phoneme",
-                    full_phoneme_list_display,
-                    index=full_phoneme_list_display.index(phoneme_display_map.get(ph["phoneme"], ph["phoneme"])),
-                    key=f"phoneme_{idx}_{j}"
-                )
+                phoneme_display = st.selectbox("Phoneme", full_phoneme_list_display, index=full_phoneme_list_display.index(phoneme_display_map.get(ph["phoneme"], ph["phoneme"])), key=f"phoneme_{idx}_{j}")
                 phoneme_internal = display_to_phoneme.get(phoneme_display, phoneme_display)
-
             with col2:
-                duration = st.number_input(
-                    "Duration (seconds)",
-                    min_value=0.05,
-                    max_value=5.0,
-                    value=float(ph["duration"]),
-                    step=0.01,
-                    format="%.2f",
-                    key=f"duration_num_{idx}_{j}"
-                )
-
+                duration = st.number_input("Duration (seconds)", min_value=0.05, max_value=5.0, value=float(ph["duration"]), step=0.01, format="%.2f", key=f"duration_num_{idx}_{j}")
             with col3:
-                pitch = st.selectbox(
-                    "Pitch",
-                    allowed_pitches,
-                    index=allowed_pitches.index(ph["pitch"]) if ph["pitch"] in allowed_pitches else 0,
-                    key=f"pitch_{idx}_{j}"
-                )
+                pitch = st.selectbox("Pitch", allowed_pitches, index=allowed_pitches.index(ph["pitch"]) if ph["pitch"] in allowed_pitches else 0, key=f"pitch_{idx}_{j}")
+            new_phonemes.append({"phoneme": phoneme_internal, "duration": duration, "pitch": pitch})
 
-            new_phonemes.append({
-                "phoneme": phoneme_internal,
-                "duration": duration,
-                "pitch": pitch
-            })
-
-        updated_syllables.append({
-            "syllable": group["syllable"],
-            "phonemes": new_phonemes
-        })
-
+        updated_syllables.append({"syllable": group["syllable"], "phonemes": new_phonemes})
         st.divider()
 
     st.session_state.edited_syllables = updated_syllables
 
     st.markdown("### Actions", unsafe_allow_html=True)
-    col_confirm, col_clear = st.columns([1, 5])
-
+    col_confirm, col_clear = st.columns([1, 2])
     with col_confirm:
-        confirm_clicked = st.button("✅ Confirm & Synthesize", key="confirm_button_mei")
-
+        confirm_clicked = st.button("✅ Confirm", key="confirm_button_mei")
     with col_clear:
-        clear_clicked = st.button("🗑️ Clear All Files", key="clear_button_mei")
+        clear_clicked = st.button("🗑️ Clear", key="clear_button_mei")
 
     if confirm_clicked:
         ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
@@ -335,25 +264,21 @@ if filetype == "MEI":
             d.mkdir(parents=True, exist_ok=True)
         st.experimental_rerun()
 
-# DS Mode
 elif filetype == "DS":
     st.header("1. Upload DS File")
     ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
 
     st.markdown("### Actions", unsafe_allow_html=True)
-    col_syn, col_clear = st.columns([1, 5])
-
+    col_syn, col_clear = st.columns([1, 2])
     with col_syn:
         synth_clicked = st.button("✅ Synthesize", key="synthesize_button_ds")
-
     with col_clear:
-        clear_ds_clicked = st.button("🗑️ Clear All Files", key="clear_button_ds")
+        clear_ds_clicked = st.button("🗑️ Clear", key="clear_button_ds")
 
     if synth_clicked:
         if not ds_file:
             st.error("Please upload a .ds file.")
             st.stop()
-
         ds_path = UPLOAD_DS_DIR / ds_file.name
         with open(ds_path, "wb") as f:
             f.write(ds_file.getbuffer())
