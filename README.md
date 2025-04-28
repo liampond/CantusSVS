@@ -17,11 +17,11 @@ CantusSVS is a singing voice synthesis tool that automatically generates audio p
 
 Liu, Jinglin, Chengxi Li, Yi Ren, Feiyang Chen, and Zhou Zhao. 2022. "Diffsinger: Singing Voice Synthesis via Shallow Diffusion Mechanism." In *Proceedings of the AAAI Conference on Artificial Intelligence* 36 10: 11020–11028. [https://arxiv.org/abs/2105.02446](http://dx.doi.org/10.1609/aaai.v36i10.21350).
 
-Training was done using Cedar, a cluster provided by the Digital Research Alliance of Canada. To set up training locally, follow [this tutorial](https://youtu.be/Sxt11TAflV0?feature=shared) by tigermeat.
+Training was done using Cedar, a cluster provided by the Digital Research Alliance of Canada. To set up training locally, follow [this tutorial](https://youtu.be/Sxt11TAflV0?feature=shared) by [tigermeat](https://www.youtube.com/@spicytigermeat).
 
 For general help training and creating a dataset, [this tutorial](https://docs.google.com/document/d/1uMsepxbdUW65PfIWL1pt2OM6ZKa5ybTTJOpZ733Ht6s/view) by [PixPrucer](https://bsky.app/profile/pixprucer.bsky.social) is an excellent guide. For help, join the [DiffSinger Discord server](https://discord.gg/DZ6fhEUfnb).
 
-The dataset used for this project was built using [*Adventus: Dominica prima adventus Domini*](https://youtu.be/ThnPySybDJs?feature=shared), the first track from [Psallentes](https://psallentes.com/)' album *Salzinnes Saints*. Psallentes is a Belgian women's chorus that specializes in Late Medieval and Renaissance music.
+The dataset used for this project was built using [*Adventus: Dominica prima adventus Domini*](https://youtu.be/ThnPySybDJs?feature=shared), the first track from [Psallentes](https://psallentes.com/)' album *Salzinnes Saints*. Psallentes is a Belgian women's chorus that specializes in Late Medieval and Renaissance music. *Salzinnes Saints* is an album of music from the [Salzinnes Antiphonal](https://www.smu.ca/academics/archives/the-salzinnes-antiphonal.html), a mid-sixteenth century choirbook with the music and text for the Liturgy of the Hours.
 
 ---
 
