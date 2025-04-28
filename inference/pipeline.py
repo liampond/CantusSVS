@@ -66,7 +66,21 @@ def run_inference(
     print(f"[pipeline] Loading variance exp: {variance_exp}")
     sys.argv = ["", "--exp_name", variance_exp, "--infer"]
     set_hparams(print_hparams=False)
-    print("[DEBUG] hparams after loading:", hparams)
+
+    # 🛡️ Patch missing hparams if necessary
+    if 'hop_size' not in hparams:
+        print("[Warning] 'hop_size' missing from hparams; setting default 512")
+        hparams['hop_size'] = 512
+    if 'audio_sample_rate' not in hparams:
+        print("[Warning] 'audio_sample_rate' missing from hparams; setting default 24000")
+        hparams['audio_sample_rate'] = 24000
+
+    # Integrity check
+    critical_keys = ['hop_size', 'audio_sample_rate', 'midi_smooth_width']
+    for key in critical_keys:
+        if key not in hparams:
+            raise ValueError(f"Critical hparam '{key}' is missing even after patching.")
+
     print("[pipeline] Variance hparams keys:", sorted(hparams.keys()))
 
     var_infer = DiffSingerVarianceInfer(ckpt_steps=None, predictions={"dur", "pitch"})

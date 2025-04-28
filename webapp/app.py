@@ -262,7 +262,7 @@ if filetype == "MEI":
         for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
             shutil.rmtree(d, ignore_errors=True)
             d.mkdir(parents=True, exist_ok=True)
-        st.experimental_rerun()
+        st.rerun()
 
 elif filetype == "DS":
     st.header("1. Upload DS File")
@@ -305,4 +305,4 @@ elif filetype == "DS":
         for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
             shutil.rmtree(d, ignore_errors=True)
             d.mkdir(parents=True, exist_ok=True)
-        st.experimental_rerun()
+        st.rerun()
