@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 import traceback
 import json
@@ -71,7 +70,77 @@ allowed_pitches = ["D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4
 # Title
 st.title("CantusSVS: Latin Singing Voice Synthesis")
 
-st.markdown("Welcome to CantusSVS! Upload or use our demo, edit phonemes, and synthesize Latin singing voice.\n---")
+st.markdown("""
+# About CantusSVS
+
+CantusSVS is a web-based Singing Voice Synthesis (SVS) system designed for composers and musicians to synthesize Latin chant audio from a custom musical score.  
+Built on top of the DiffSinger AI model, CantusSVS enables detailed, precise control over melody, rhythm, phonemes, and timing without any programming knowledge required.
+
+---
+
+# How to Use CantusSVS
+
+## 1. Install MuseScore 4
+
+Download and install [MuseScore 4](https://musescore.org/en/4.0).
+
+## 2. Compose Your Music
+
+In MuseScore, compose the chant you want to synthesize:
+
+- Monophonic only (one note at a time, no harmonies or chords)
+- Stay within the pitch range of **D4 to D5**
+- Add lyrics (Latin) under each note
+
+## 3. Export Your Score to MEI
+
+When your score is complete:
+
+- Go to **File → Export**
+- Choose the **.mei** file format
+- Save it to your computer
+
+## 4. Upload Your Score to CantusSVS
+
+In the CantusSVS web app:
+
+- Select **MEI** mode
+- Upload your `.mei` file
+- Adjust the **tempo** if necessary using the provided slider
+- Your score will be displayed using Verovio
+
+## 5. Edit Phonemes, Durations, and Pitches
+
+CantusSVS automatically suggests phoneme splits for each syllable.  
+You will have the opportunity to review phonemes, durations, and pitches.
+
+## 6. Synthesize the Audio
+
+When you're done:
+
+- Click **Confirm & Synthesize**
+- CantusSVS will create a `.ds` file
+- It processes the file through pretrained DiffSinger models
+- The synthesized chant will be generated
+
+This typically takes a few seconds to a few minutes depending on input length.
+
+## 7. Listen and Download
+
+After synthesis you can either listen to your chant directly in the app or download a .wav file to your computer.
+
+---
+
+# About DiffSinger
+
+DiffSinger is a deep learning-based Singing Voice Synthesis (SVS) framework that uses diffusion models to generate natural singing voices from symbolic musical input.  
+It improves quality over earlier SVS systems and allows higher fidelity control over timing, pitch, and vocal expression.
+
+CantusSVS uses a custom-trained DiffSinger model specifically adapted for medieval chant synthesis.
+
+---
+
+""")
 
 filetype = st.selectbox("Select file type:", ["MEI", "DS"])
 
@@ -113,25 +182,36 @@ if filetype == "MEI":
         handle_exception("MEI parsing")
 
     if use_demo:
-        fixed_ph_seq = "m u s i c a e s t v i t a".split()
+        fixed_syllables = [
+            ["m", "u", "s"],
+            ["i"],
+            ["c", "a"],
+            ["e", "s", "t"],
+            ["v", "i"],
+            ["t", "a"]
+        ]
         fixed_note_seq = "G#4 G#4 F#4 F#4 G#4 G#4 A4 A4 A4 A4 A4 G#4 G#4".split()
         fixed_note_dur = [0.1, 0.5, 0.1, 0.5, 0.1, 0.5, 0.5, 0.05, 0.05, 0.1, 0.9, 0.1, 0.9]
-        
+
         raw_notes = []
-        for phoneme, pitch, duration in zip(fixed_ph_seq, fixed_note_seq, fixed_note_dur):
+        idx = 0
+        for syllable_phonemes in fixed_syllables:
+            syllable_duration = 0
+            for _ in syllable_phonemes:
+                syllable_duration += fixed_note_dur[idx]
+                idx += 1
+            syllable_text = ''.join(syllable_phonemes)
+            pitch = fixed_note_seq[idx - 1]
             raw_notes.append({
-                "lyric": phoneme,
+                "lyric": syllable_text,
                 "pitch": pitch,
-                "duration": duration
+                "duration": syllable_duration
             })
 
-    # Save original notes
     if "original_raw_notes" not in st.session_state:
         st.session_state.original_raw_notes = raw_notes
 
-    # Tempo rescaling
     syllable_groups = []
-    quarter_duration = 60 / tempo
 
     for note in st.session_state.original_raw_notes:
         syllable_text = note["lyric"]
@@ -149,15 +229,13 @@ if filetype == "MEI":
             "phonemes": syllable
         })
 
-    # Save syllables
     if "edited_syllables" not in st.session_state:
         st.session_state.edited_syllables = syllable_groups
 
-    # Verovio viewer
     st.subheader("Score Preview")
     components.html(f"""
-    <div id="app" style="border: 1px solid lightgray; min-height: 400px;"></div>
-    <script type="module">
+    <div id=\"app\" style=\"border: 1px solid lightgray; min-height: 400px;\"></div>
+    <script type=\"module\">
         import 'https://editor.verovio.org/javascript/app/verovio-app.js';
         const app = new Verovio.App(document.getElementById("app"), {{
             defaultView: 'document',
@@ -167,7 +245,6 @@ if filetype == "MEI":
     </script>
     """, height=500)
 
-    # --- Phoneme Editing ---
     st.subheader("Edit Phonemes, Durations, and Pitches", divider="gray")
     updated_syllables = []
 
@@ -192,7 +269,7 @@ if filetype == "MEI":
                     "Duration (seconds)",
                     min_value=0.05,
                     max_value=5.0,
-                    value=ph["duration"],
+                    value=float(ph["duration"]),
                     step=0.01,
                     format="%.2f",
                     key=f"duration_num_{idx}_{j}"
@@ -219,29 +296,17 @@ if filetype == "MEI":
 
         st.divider()
 
-    # Save the updated syllables
     st.session_state.edited_syllables = updated_syllables
 
-    # --- Actions after phoneme editing (MEI Mode) ---
     st.markdown("### Actions", unsafe_allow_html=True)
-
     col_confirm, col_clear = st.columns([1, 5])
 
     with col_confirm:
-        confirm_clicked = st.button("✅", key="confirm_button_mei")
+        confirm_clicked = st.button("✅ Confirm & Synthesize", key="confirm_button_mei")
 
     with col_clear:
-        st.markdown("#### Confirm & Synthesize")
+        clear_clicked = st.button("🗑️ Clear All Files", key="clear_button_mei")
 
-    col_trash1, col_trash2 = st.columns([1, 5])
-
-    with col_trash1:
-        clear_clicked = st.button("🗑️", key="clear_button_mei")
-
-    with col_trash2:
-        st.markdown("#### Clear All Files")
-
-    # --- Actions after buttons ---
     if confirm_clicked:
         ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
         try:
@@ -270,31 +335,20 @@ if filetype == "MEI":
             d.mkdir(parents=True, exist_ok=True)
         st.experimental_rerun()
 
-
 # DS Mode
 elif filetype == "DS":
     st.header("1. Upload DS File")
     ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
 
-    # --- Buttons layout ---
     st.markdown("### Actions", unsafe_allow_html=True)
-    col_syn, col_syn_label = st.columns([1, 5])
+    col_syn, col_clear = st.columns([1, 5])
 
     with col_syn:
-        synth_clicked = st.button("✅", key="synthesize_button_ds")
+        synth_clicked = st.button("✅ Synthesize", key="synthesize_button_ds")
 
-    with col_syn_label:
-        st.markdown("#### Synthesize from DS")
+    with col_clear:
+        clear_ds_clicked = st.button("🗑️ Clear All Files", key="clear_button_ds")
 
-    col_trash_ds1, col_trash_ds2 = st.columns([1, 5])
-
-    with col_trash_ds1:
-        clear_ds_clicked = st.button("🗑️", key="clear_button_ds")
-
-    with col_trash_ds2:
-        st.markdown("#### Clear All Files")
-
-    # --- Actions after clicking buttons ---
     if synth_clicked:
         if not ds_file:
             st.error("Please upload a .ds file.")
@@ -327,11 +381,3 @@ elif filetype == "DS":
             shutil.rmtree(d, ignore_errors=True)
             d.mkdir(parents=True, exist_ok=True)
         st.experimental_rerun()
-
-
-# Clear all
-if st.button("Clear All Files"):
-    for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
-        shutil.rmtree(d, ignore_errors=True)
-        d.mkdir(parents=True, exist_ok=True)
-    st.experimental_rerun()
