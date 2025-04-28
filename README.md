@@ -58,10 +58,10 @@ Or just use the hosted app here: [https://cantussvs.streamlit.app](https://cantu
 
 ## Preparing Your Input
 
+- Most commercial music composition software can export `.mei` files. MuseScore 4 is free to use.
 - Input format must be `.mei` (Music Encoding Initiative XML).
 - Only **monophonic** scores are supported (one staff, one voice).
 - Lyrics must be embedded in the MEI file and aligned with notes.
-- Example MEI files can be found in the `examples/` directory.
 
 Validation tool:
 
