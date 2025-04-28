@@ -26,6 +26,7 @@ scipy>=1.10.0
 tensorboard
 tensorboardX
 tqdm
+typing_extensions
 
 # Torch-related utilities
 # (requires torch already installed)

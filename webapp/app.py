@@ -86,11 +86,11 @@ def handle_exception(context_message):
 # MEI Mode
 if filetype == "MEI":
     st.header("1. Select MEI Source")
-    use_demo = st.checkbox("Use demo MEI file (CantusSVSTest.mei)", value=False)
+    use_demo = st.checkbox("Use demo MEI file (CantusSVSDemo.mei)", value=False)
     tempo = st.slider("Tempo (BPM)", 30, 300, 120)
 
     if use_demo:
-        mei_path = UPLOAD_MEI_DIR / "CantusSVSTest.mei"
+        mei_path = UPLOAD_MEI_DIR / "CantusSVSDemo.mei"
         if not mei_path.exists():
             st.error("Demo MEI file missing.")
             st.stop()
@@ -111,6 +111,19 @@ if filetype == "MEI":
         raw_notes = parse_mei_for_editor(mei_path, tempo)
     except Exception:
         handle_exception("MEI parsing")
+
+    if use_demo:
+        fixed_ph_seq = "m u s i c a e s t v i t a".split()
+        fixed_note_seq = "G#4 G#4 F#4 F#4 G#4 G#4 A4 A4 A4 A4 A4 G#4 G#4".split()
+        fixed_note_dur = [0.1, 0.5, 0.1, 0.5, 0.1, 0.5, 0.5, 0.05, 0.05, 0.1, 0.9, 0.1, 0.9]
+        
+        raw_notes = []
+        for phoneme, pitch, duration in zip(fixed_ph_seq, fixed_note_seq, fixed_note_dur):
+            raw_notes.append({
+                "lyric": phoneme,
+                "pitch": pitch,
+                "duration": duration
+            })
 
     # Save original notes
     if "original_raw_notes" not in st.session_state:
@@ -154,16 +167,16 @@ if filetype == "MEI":
     </script>
     """, height=500)
 
-    # Phoneme editor
+    # --- Phoneme Editing ---
     st.subheader("Edit Phonemes, Durations, and Pitches", divider="gray")
     updated_syllables = []
 
     for idx, group in enumerate(st.session_state.edited_syllables):
-        st.markdown(f"##### {group['syllable'].capitalize()}")
+        st.markdown(f"#### {group['syllable'].capitalize()}")
         new_phonemes = []
 
         for j, ph in enumerate(group["phonemes"]):
-            col1, col2, col3, col4, col5 = st.columns([2, 1, 2, 2, 1])
+            col1, col2, col3 = st.columns([3, 3, 3])
 
             with col1:
                 phoneme_display = st.selectbox(
@@ -176,7 +189,7 @@ if filetype == "MEI":
 
             with col2:
                 duration = st.number_input(
-                    "Duration",
+                    "Duration (seconds)",
                     min_value=0.05,
                     max_value=5.0,
                     value=ph["duration"],
@@ -184,19 +197,8 @@ if filetype == "MEI":
                     format="%.2f",
                     key=f"duration_num_{idx}_{j}"
                 )
-            with col3:
-                duration_slider = st.slider(
-                    "Duration slider",
-                    min_value=0.05,
-                    max_value=5.0,
-                    value=duration,
-                    step=0.01,
-                    key=f"duration_slider_{idx}_{j}"
-                )
-            if duration_slider != duration:
-                duration = duration_slider
 
-            with col4:
+            with col3:
                 pitch = st.selectbox(
                     "Pitch",
                     allowed_pitches,
@@ -204,37 +206,46 @@ if filetype == "MEI":
                     key=f"pitch_{idx}_{j}"
                 )
 
-            with col5:
-                if len(group["phonemes"]) > 1:
-                    if st.button("❌", key=f"remove_{idx}_{j}"):
-                        continue
-
             new_phonemes.append({
                 "phoneme": phoneme_internal,
                 "duration": duration,
                 "pitch": pitch
             })
 
-        if st.button(f"➕ Add phoneme", key=f"add_{idx}"):
-            new_phonemes.append({
-                "phoneme": "a",
-                "duration": quarter_duration,
-                "pitch": new_phonemes[-1]["pitch"] if new_phonemes else "D4"
-            })
-
         updated_syllables.append({
             "syllable": group["syllable"],
             "phonemes": new_phonemes
         })
+
         st.divider()
 
+    # Save the updated syllables
     st.session_state.edited_syllables = updated_syllables
 
-    # Confirm and synthesize
-    if st.button("✅ Confirm & Synthesize"):
+    # --- Actions after phoneme editing (MEI Mode) ---
+    st.markdown("### Actions", unsafe_allow_html=True)
+
+    col_confirm, col_clear = st.columns([1, 5])
+
+    with col_confirm:
+        confirm_clicked = st.button("✅", key="confirm_button_mei")
+
+    with col_clear:
+        st.markdown("#### Confirm & Synthesize")
+
+    col_trash1, col_trash2 = st.columns([1, 5])
+
+    with col_trash1:
+        clear_clicked = st.button("🗑️", key="clear_button_mei")
+
+    with col_trash2:
+        st.markdown("#### Clear All Files")
+
+    # --- Actions after buttons ---
+    if confirm_clicked:
         ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
         try:
-            all_phonemes = [ph for syllable in updated_syllables for ph in syllable["phonemes"]]
+            all_phonemes = [ph for syllable in st.session_state.edited_syllables for ph in syllable["phonemes"]]
             build_ds_from_notes(all_phonemes, ds_path)
             with open(ds_path, "r", encoding="utf-8") as f:
                 ds_data = json.load(f)
@@ -253,12 +264,38 @@ if filetype == "MEI":
         st.audio(str(wav_path))
         st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
+    if clear_clicked:
+        for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
+            shutil.rmtree(d, ignore_errors=True)
+            d.mkdir(parents=True, exist_ok=True)
+        st.experimental_rerun()
+
+
 # DS Mode
 elif filetype == "DS":
     st.header("1. Upload DS File")
     ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
 
-    if st.button("Synthesize from DS"):
+    # --- Buttons layout ---
+    st.markdown("### Actions", unsafe_allow_html=True)
+    col_syn, col_syn_label = st.columns([1, 5])
+
+    with col_syn:
+        synth_clicked = st.button("✅", key="synthesize_button_ds")
+
+    with col_syn_label:
+        st.markdown("#### Synthesize from DS")
+
+    col_trash_ds1, col_trash_ds2 = st.columns([1, 5])
+
+    with col_trash_ds1:
+        clear_ds_clicked = st.button("🗑️", key="clear_button_ds")
+
+    with col_trash_ds2:
+        st.markdown("#### Clear All Files")
+
+    # --- Actions after clicking buttons ---
+    if synth_clicked:
         if not ds_file:
             st.error("Please upload a .ds file.")
             st.stop()
@@ -284,6 +321,13 @@ elif filetype == "DS":
         st.success("Synthesis complete!")
         st.audio(str(wav_path))
         st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
+
+    if clear_ds_clicked:
+        for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
+            shutil.rmtree(d, ignore_errors=True)
+            d.mkdir(parents=True, exist_ok=True)
+        st.experimental_rerun()
+
 
 # Clear all
 if st.button("Clear All Files"):
