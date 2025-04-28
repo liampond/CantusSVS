@@ -1,5 +1,6 @@
 # inference/pipeline.py
 
+import os
 import json
 import sys
 from pathlib import Path
@@ -10,6 +11,9 @@ from inference.ds_variance import DiffSingerVarianceInfer
 from inference.ds_acoustic import DiffSingerAcousticInfer
 from utils.infer_utils import parse_commandline_spk_mix, trans_key
 from webapp.services.parsing.ds_validator import validate_ds
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 
 def run_inference(
     ds_path: Path,
@@ -27,6 +31,15 @@ def run_inference(
     Runs the full pipeline: variance model => acoustic model;
     returns the path to the generated WAV.
     """
+
+    sys.argv = [
+        "", 
+        "--config", str(PROJECT_ROOT / "checkpoints" / variance_exp / "config.yaml"), 
+        "--exp_name", variance_exp, 
+        "--infer"
+    ]
+    set_hparams(print_hparams=False)
+
     # 1) Check input DS exists
     if not ds_path.exists():
         raise FileNotFoundError(f"Input DS file not found: {ds_path}")
