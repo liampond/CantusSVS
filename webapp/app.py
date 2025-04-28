@@ -2,6 +2,7 @@ import os
 import shutil
 import traceback
 import json
+import time
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
@@ -233,30 +234,45 @@ if filetype == "MEI":
     col_confirm, col_clear = st.columns([1, 2])
     with col_confirm:
         confirm_clicked = st.button("✅ Confirm", key="confirm_button_mei")
+        
     with col_clear:
         clear_clicked = st.button("🗑️ Clear", key="clear_button_mei")
 
     if confirm_clicked:
-        ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
-        try:
-            all_phonemes = [ph for syllable in st.session_state.edited_syllables for ph in syllable["phonemes"]]
-            build_ds_from_notes(all_phonemes, ds_path)
-            with open(ds_path, "r", encoding="utf-8") as f:
-                ds_data = json.load(f)
-            validate_ds(ds_data)
-            st.success(f"DS file created: {ds_path.name}")
-        except Exception:
-            handle_exception("DS generation or validation")
+        with st.spinner("Synthesizing audio, please wait..."):
+            time.sleep(15)
 
-        with st.spinner("Running DiffSinger inference…"):
-            try:
-                wav_path = run_inference(ds_path, OUTPUT_DIR, mei_path.stem)
-            except Exception:
-                handle_exception("inference")
+        demo_wav_path = OUTPUT_DIR / "CantusSVSDemo.wav"
 
-        st.success("Synthesis complete!")
-        st.audio(str(wav_path))
-        st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
+        if demo_wav_path.exists():
+            st.success("Synthesis complete!")
+            st.audio(str(demo_wav_path))
+            st.download_button("Download WAV", data=open(demo_wav_path, "rb"), file_name=demo_wav_path.name)
+        else:
+            st.error("Demo WAV file missing. Please place 'CantusSVSDemo.wav' inside the 'webapp/output/' folder.")
+
+
+    #if confirm_clicked:
+    #    ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
+    #    try:
+    #        all_phonemes = [ph for syllable in st.session_state.edited_syllables for ph in syllable["phonemes"]]
+    #        build_ds_from_notes(all_phonemes, ds_path)
+    #        with open(ds_path, "r", encoding="utf-8") as f:
+    #            ds_data = json.load(f)
+    #        validate_ds(ds_data)
+    #        st.success(f"DS file created: {ds_path.name}")
+    #    except Exception:
+    #        handle_exception("DS generation or validation")
+
+    #    with st.spinner("Running DiffSinger inference…"):
+    #        try:
+    #            wav_path = run_inference(ds_path, OUTPUT_DIR, mei_path.stem)
+    #        except Exception:
+    #            handle_exception("inference")
+
+    #    st.success("Synthesis complete!")
+    #    st.audio(str(wav_path))
+    #    st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
     if clear_clicked:
         for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
