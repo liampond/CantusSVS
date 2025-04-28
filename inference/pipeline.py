@@ -36,25 +36,25 @@ def run_inference(
         params = json.load(f)
     if not isinstance(params, list):
         params = [params]
-        
-    # 🔥 Validate loaded DS files
+
+    # Validate loaded DS files
     for p in params:
         try:
             validate_ds(p)
         except Exception as e:
             raise ValueError(f"Invalid input DS file: {e}")
 
-    # 3) Ensure ph_seq present
+    # Ensure ph_seq present
     for p in params:
         if "ph_seq" not in p:
             text = p.get("text", "")
             p["ph_seq"] = " ".join(list(text.replace(" ", "")))
 
-    # 4) Transpose
+    # Transpose
     if key_shift != 0:
         params = trans_key(params, key_shift)
 
-    # 5) Speaker mix
+    # Speaker mix
     spk_mix = parse_commandline_spk_mix(None) if hparams.get("use_spk_id") else None
     for p in params:
         if gender is not None and hparams.get("use_key_shift_embed"):
@@ -64,22 +64,13 @@ def run_inference(
 
     # ==== Variance Inference ==== #
     print(f"[pipeline] Loading variance exp: {variance_exp}")
-    sys.argv = ["", "--exp_name", variance_exp, "--infer"]
+    sys.argv = [
+        "", 
+        "--config", f"checkpoints/{variance_exp}/config.yaml", 
+        "--exp_name", variance_exp, 
+        "--infer"
+    ]
     set_hparams(print_hparams=False)
-
-    # 🛡️ Patch missing hparams if necessary
-    if 'hop_size' not in hparams:
-        print("[Warning] 'hop_size' missing from hparams; setting default 512")
-        hparams['hop_size'] = 512
-    if 'audio_sample_rate' not in hparams:
-        print("[Warning] 'audio_sample_rate' missing from hparams; setting default 24000")
-        hparams['audio_sample_rate'] = 24000
-
-    # Integrity check
-    critical_keys = ['hop_size', 'audio_sample_rate', 'midi_smooth_width']
-    for key in critical_keys:
-        if key not in hparams:
-            raise ValueError(f"Critical hparam '{key}' is missing even after patching.")
 
     print("[pipeline] Variance hparams keys:", sorted(hparams.keys()))
 
@@ -89,13 +80,13 @@ def run_inference(
     if not ds_out.exists():
         raise RuntimeError(f"Variance inference failed; missing {ds_out}")
 
-    # 6) Reload params from variance output
+    # Reload params from variance output
     with open(ds_out, "r", encoding="utf-8") as f:
         params = json.load(f)
     if not isinstance(params, list):
         params = [params]
 
-    # 🔥 Validate variance output DS
+    # Validate variance output DS
     for p in params:
         try:
             validate_ds(p)
@@ -104,7 +95,12 @@ def run_inference(
 
     # ==== Acoustic Inference ==== #
     print(f"[pipeline] Loading acoustic exp: {acoustic_exp}")
-    sys.argv = ["", "--exp_name", acoustic_exp, "--infer"]
+    sys.argv = [
+        "", 
+        "--config", f"checkpoints/{acoustic_exp}/config.yaml", 
+        "--exp_name", acoustic_exp, 
+        "--infer"
+    ]
     set_hparams(print_hparams=False)
     print("[pipeline] Acoustic hparams keys:", sorted(hparams.keys()))
 
