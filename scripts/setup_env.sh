@@ -4,7 +4,7 @@ if ! module list 2>&1 | grep -q gcc; then
 fi
 
 if ! module list 2>&1 | grep -q arrow; then
-  module load arrow/19.0.1
+  module load gcc arrow/19.0.1 python/3.11
 fi
 
 if ! module list 2>&1 | grep -q cuda; then
@@ -56,6 +56,7 @@ if [ "$dev" != "1" ]; then
   source venv/bin/activate
   echo "Installing project requirements..."
   pip install -r requirements.txt
+  pip install tornado scipy pillow pandas six packaging==24.0 decorator
 else
   echo "⚡ Dev mode active: Skipping pip install -r requirements.txt"
 fi

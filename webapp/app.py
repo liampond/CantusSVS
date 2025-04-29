@@ -22,11 +22,12 @@ from webapp.services.phonemes.phoneme_dict import PHONEMES as permitted_phonemes
 from inference.pipeline import run_inference
 
 # Directories
+DEMO_FILES = PROJECT_ROOT / "webapp/demo_files"
 UPLOAD_MEI_DIR = PROJECT_ROOT / "webapp/uploaded_mei"
 UPLOAD_DS_DIR = PROJECT_ROOT / "webapp/uploaded_ds"
 TMP_DS_DIR = PROJECT_ROOT / "webapp/tmp_ds"
 OUTPUT_DIR = PROJECT_ROOT / "webapp/output"
-for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
+for d in [DEMO_FILES, UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 # Config
@@ -46,6 +47,35 @@ div.stButton > button:first-child {
     border-radius: 8px;
 }
 section[data-testid="stFileUploaderDropzone"] { padding: 2rem; }
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted white;
+  cursor: help;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Position above */
+  left: 50%;
+  margin-left: -125px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -63,72 +93,80 @@ st.title("CantusSVS: Latin Singing Voice Synthesis")
 st.markdown("""
 # About CantusSVS
 
-CantusSVS is a web-based Singing Voice Synthesis (SVS) system designed for composers and musicians to synthesize Latin chant audio from a custom musical score.
-Built on top of the DiffSinger AI model, CantusSVS enables detailed, precise control over melody, rhythm, phonemes, and timing without any programming knowledge required.
+<p>CantusSVS is a web-based Singing Voice Synthesis (SVS) system designed for composers and musicians to synthesize Latin chant audio from a custom musical score.
+Built on top of the DiffSinger AI model, CantusSVS enables detailed, precise control over melody, rhythm, phonemes, and timing without any programming knowledge required.</p>
+            
+<p>Designed by Liam Pond as the final project for MUS6329X: Projet en informatique musicale (Prof. Dominic Thibault) at the Université de Montréal.
+You can view this project's GitHub repository [here](https://github.com/liampond/CantusSVS).</p>
 
 ---
 
 # How to Use CantusSVS
 
-## 1. Install MuseScore 4
+## 1. Compose Your Music
 
-Download and install [MuseScore 4](https://musescore.org/en/4.0).
-
-## 2. Compose Your Music
-
-In MuseScore, compose the chant you want to synthesize:
+Compose the chant you want to synthesize using the notation software of your choice. [MuseScore 4](https://musescore.org/en/download) is recommended.
+The chant must adhere to the following conditions:
 
 - Monophonic only (one note at a time, no harmonies or chords)
-- Stay within the pitch range of **D4 to D5**
-- Add lyrics (Latin) under each note
+- Pitch range of <span class="tooltip">**D4 to D5**<span class="tooltiptext">Because training data was limited outside this range, synthesis outside these pitches is very poor.</span></span>**
+- Lyrics (Latin) under each note, separated by syllable
 
-## 3. Export Your Score to MEI
+## 2. Export Your Score to MEI
 
-When your score is complete:
+When your score is complete, export it to MEI.
 
+In MuseScore:            
 - Go to **File → Export**
-- Choose the **.mei** file format
+- Choose the `.mei` file format
 - Save it to your computer
 
-## 4. Upload Your Score to CantusSVS
+## 3. Upload Your Score to CantusSVS
 
 In the CantusSVS web app:
 
 - Select **MEI** mode
-- Upload your `.mei` file
 - Adjust the **tempo** if necessary using the provided slider
+- Upload your `.mei` file
 - Your score will be displayed using Verovio
+- You may use the demo `.mei` file if you wish
 
-## 5. Edit Phonemes, Durations, and Pitches
+## 4. Edit Phonemes, Durations, and Pitches
 
 CantusSVS automatically suggests phoneme splits for each syllable.
-You will have the opportunity to review phonemes, durations, and pitches.
+However, you will have the opportunity to review phonemes, durations, and pitches.
 
-## 6. Synthesize the Audio
+## 5. Synthesize the Audio
 
 When you're done:
 
 - Click **Confirm**
-- CantusSVS will create a `.ds` file
-- It processes the file through pretrained DiffSinger models
+- CantusSVS will create a `.ds` file which are processed through pretrained DiffSinger models
 - The synthesized chant will be generated
 
-This typically takes a few seconds to a few minutes depending on input length.
+This can take a few minutes depending on input length
 
-## 7. Listen and Download
+## 6. Listen and Download
 
-After synthesis you can either listen to your chant directly in the app or download a .wav file to your computer.
-
----
-
-# About DiffSinger
-
-DiffSinger is a deep learning-based Singing Voice Synthesis (SVS) framework that uses diffusion models to generate natural singing voices from symbolic musical input.
-It improves quality over earlier SVS systems and allows higher fidelity control over timing, pitch, and vocal expression.
-
-CantusSVS uses a custom-trained DiffSinger model specifically adapted for medieval chant synthesis.
+After synthesis you can either listen to your chant directly in the app or download a `.wav` file to your computer.
 
 ---
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<script>
+const tooltipSpan = window.parent.document.querySelector('span[style*="border-bottom: 1px dotted black"]');
+if (tooltipSpan) {
+    tooltipSpan.addEventListener('mouseover', () => {
+        tooltipSpan.children[0].style.visibility = 'visible';
+        tooltipSpan.children[0].style.opacity = 1;
+    });
+    tooltipSpan.addEventListener('mouseout', () => {
+        tooltipSpan.children[0].style.visibility = 'hidden';
+        tooltipSpan.children[0].style.opacity = 0;
+    });
+}
+</script>
 """, unsafe_allow_html=True)
 
 filetype = st.selectbox("Select file type:", ["MEI", "DS"])
@@ -143,11 +181,11 @@ def handle_exception(context_message):
 
 if filetype == "MEI":
     st.header("1. Select MEI Source")
-    use_demo = st.checkbox("Use demo MEI file (CantusSVSDemo.mei)", value=False)
+    use_demo = st.checkbox("Use demo MEI file", value=False)
     tempo = st.slider("Tempo (BPM)", 30, 300, 120)
 
     if use_demo:
-        mei_path = UPLOAD_MEI_DIR / "CantusSVSDemo.mei"
+        mei_path = DEMO_FILES / "Demo1.mei"
         if not mei_path.exists():
             st.error("Demo MEI file missing.")
             st.stop()
@@ -169,7 +207,7 @@ if filetype == "MEI":
     except Exception:
         handle_exception("MEI parsing")
 
-    if use_demo:
+    """ if use_demo:
         fixed_syllables = [["m", "u", "s"], ["i"], ["c", "a"], ["e", "s", "t"], ["v", "i"], ["t", "a"]]
         fixed_note_seq = "G#4 G#4 F#4 F#4 G#4 G#4 A4 A4 A4 A4 A4 G#4 G#4".split()
         fixed_note_dur = [0.1, 0.5, 0.1, 0.5, 0.1, 0.5, 0.5, 0.05, 0.05, 0.1, 0.9, 0.1, 0.9]
@@ -183,7 +221,7 @@ if filetype == "MEI":
                 idx += 1
             syllable_text = ''.join(syllable_phonemes)
             pitch = fixed_note_seq[idx - 1]
-            raw_notes.append({"lyric": syllable_text, "pitch": pitch, "duration": syllable_duration})
+            raw_notes.append({"lyric": syllable_text, "pitch": pitch, "duration": syllable_duration}) """
 
     # Always update session state
     st.session_state.original_raw_notes = raw_notes
@@ -208,7 +246,7 @@ if filetype == "MEI":
     st.subheader("Score Preview")
     components.html(f"""<div id=\"app\" style=\"border: 1px solid lightgray; min-height: 400px;\"></div><script type=\"module\">import 'https://editor.verovio.org/javascript/app/verovio-app.js';const app=new Verovio.App(document.getElementById(\"app\"),{{defaultView:'document',documentZoom:4}});app.loadData(`{mei_text}`);</script>""", height=500)
 
-    st.subheader("Edit Phonemes, Durations, and Pitches", divider="gray")
+    st.header("2. Edit Phonemes, Durations, and Pitches")
     updated_syllables = []
 
     for idx, group in enumerate(st.session_state.edited_syllables):
@@ -230,49 +268,35 @@ if filetype == "MEI":
 
     st.session_state.edited_syllables = updated_syllables
 
-    st.markdown("### Actions", unsafe_allow_html=True)
+    st.header("3. Actions")
     col_confirm, col_clear = st.columns([1, 2])
     with col_confirm:
-        confirm_clicked = st.button("✅ Confirm", key="confirm_button_mei")
+        confirm_clicked = st.button("✅ Synthesize", key="confirm_button_mei")
         
     with col_clear:
-        clear_clicked = st.button("🗑️ Clear", key="clear_button_mei")
+        clear_clicked = st.button("🗑️ Clear Uploaded Files", key="clear_button_mei")
 
     if confirm_clicked:
-        with st.spinner("Synthesizing audio, please wait..."):
-            time.sleep(15)
+        ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
+        try:
+            all_phonemes = [ph for syllable in st.session_state.edited_syllables for ph in syllable["phonemes"]]
+            build_ds_from_notes(all_phonemes, ds_path)
+            with open(ds_path, "r", encoding="utf-8") as f:
+                ds_data = json.load(f)
+            validate_ds(ds_data)
+            st.success(f"DS file created: {ds_path.name}")
+        except Exception:
+            handle_exception("DS generation or validation")
 
-        demo_wav_path = OUTPUT_DIR / "CantusSVSDemo.wav"
+        with st.spinner("Running DiffSinger inference…"):
+            try:
+                wav_path = run_inference(ds_path, OUTPUT_DIR, mei_path.stem)
+            except Exception:
+                handle_exception("inference")
 
-        if demo_wav_path.exists():
-            st.success("Synthesis complete!")
-            st.audio(str(demo_wav_path))
-            st.download_button("Download WAV", data=open(demo_wav_path, "rb"), file_name=demo_wav_path.name)
-        else:
-            st.error("Demo WAV file missing. Please place 'CantusSVSDemo.wav' inside the 'webapp/output/' folder.")
-
-
-    #if confirm_clicked:
-    #    ds_path = TMP_DS_DIR / f"{mei_path.stem}.ds"
-    #    try:
-    #        all_phonemes = [ph for syllable in st.session_state.edited_syllables for ph in syllable["phonemes"]]
-    #        build_ds_from_notes(all_phonemes, ds_path)
-    #        with open(ds_path, "r", encoding="utf-8") as f:
-    #            ds_data = json.load(f)
-    #        validate_ds(ds_data)
-    #        st.success(f"DS file created: {ds_path.name}")
-    #    except Exception:
-    #        handle_exception("DS generation or validation")
-
-    #    with st.spinner("Running DiffSinger inference…"):
-    #        try:
-    #            wav_path = run_inference(ds_path, OUTPUT_DIR, mei_path.stem)
-    #        except Exception:
-    #            handle_exception("inference")
-
-    #    st.success("Synthesis complete!")
-    #    st.audio(str(wav_path))
-    #    st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
+        st.success("Synthesis complete!")
+        st.audio(str(wav_path))
+        st.download_button("Download WAV", data=open(wav_path, "rb"), file_name=wav_path.name)
 
     if clear_clicked:
         for d in [UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
@@ -284,7 +308,7 @@ elif filetype == "DS":
     st.header("1. Upload DS File")
     ds_file = st.file_uploader("Upload your .ds file", type=["ds", "json"])
 
-    st.markdown("### Actions", unsafe_allow_html=True)
+    st.header("2. Synthesize")
     col_syn, col_clear = st.columns([1, 2])
     with col_syn:
         synth_clicked = st.button("✅ Synthesize", key="synthesize_button_ds")

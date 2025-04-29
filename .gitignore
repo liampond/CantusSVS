@@ -26,3 +26,8 @@ outputs/
 
 commands.txt
 19Apr-Commands.sh
+
+webapp/output/
+webapp/tmp_ds/
+webapp/uploaded_ds/
+webapp/uploaded_mei/
