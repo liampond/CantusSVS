@@ -2,6 +2,7 @@ artifacts/
 checkpoints/
 venv/
 .venv/
+svenv/
 env-py311/
 *.swp
 data/
