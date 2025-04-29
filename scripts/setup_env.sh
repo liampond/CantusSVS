@@ -1,3 +1,6 @@
+# Activate the virtual environment
+source venv/bin/activate
+
 # Load necessary modules only if not already loaded
 if ! module list 2>&1 | grep -q gcc; then
   module load gcc/12.3
@@ -19,9 +22,6 @@ else
   echo "Virtual environment already exists, skipping creation."
 fi
 
-# Activate the virtual environment
-source venv/bin/activate
-
 # Verify if virtual environment is active
 if [ -z "$VIRTUAL_ENV" ]; then
   echo "❗ Error: Virtual environment is not active after activation attempt."
@@ -36,7 +36,6 @@ pip install --upgrade pip
 pip install --no-index torch torchvision torchaudio
 pip install streamlit tornado pytest lxml pyyaml lightning
 
-# Load scipy-stack module to support scientific libraries
 module load scipy-stack
 
 # Check if torch and torchvision are installed correctly

@@ -109,7 +109,7 @@ Compose the chant you want to synthesize using the notation software of your cho
 The chant must adhere to the following conditions:
 
 - Monophonic only (one note at a time, no harmonies or chords)
-- Pitch range of <span class="tooltip">**D4 to D5**<span class="tooltiptext">Because training data was limited outside this range, synthesis outside these pitches is very poor.</span></span>**
+- Pitch range of <span class="tooltip">**D4 to D5**<span class="tooltiptext">Because training data was limited outside this range, synthesis outside these pitches is very poor.</span></span>
 - Lyrics (Latin) under each note, separated by syllable
 
 ## 2. Export Your Score to MEI
@@ -206,22 +206,6 @@ if filetype == "MEI":
         raw_notes = parse_mei_for_editor(mei_path, tempo)
     except Exception:
         handle_exception("MEI parsing")
-
-    """ if use_demo:
-        fixed_syllables = [["m", "u", "s"], ["i"], ["c", "a"], ["e", "s", "t"], ["v", "i"], ["t", "a"]]
-        fixed_note_seq = "G#4 G#4 F#4 F#4 G#4 G#4 A4 A4 A4 A4 A4 G#4 G#4".split()
-        fixed_note_dur = [0.1, 0.5, 0.1, 0.5, 0.1, 0.5, 0.5, 0.05, 0.05, 0.1, 0.9, 0.1, 0.9]
-
-        raw_notes = []
-        idx = 0
-        for syllable_phonemes in fixed_syllables:
-            syllable_duration = 0
-            for _ in syllable_phonemes:
-                syllable_duration += fixed_note_dur[idx]
-                idx += 1
-            syllable_text = ''.join(syllable_phonemes)
-            pitch = fixed_note_seq[idx - 1]
-            raw_notes.append({"lyric": syllable_text, "pitch": pitch, "duration": syllable_duration}) """
 
     # Always update session state
     st.session_state.original_raw_notes = raw_notes
