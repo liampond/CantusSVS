@@ -27,6 +27,7 @@ tensorboard
 tensorboardX
 tqdm
 typing_extensions
+gdown
 
 # Torch-related utilities
 # (requires torch already installed)
