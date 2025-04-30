@@ -1,4 +1,5 @@
 import os
+import yaml
 import shutil
 import traceback
 import json
@@ -7,6 +8,41 @@ import zipfile
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
+
+def patch_config_yaml_files():
+    root = "/tmp/cantussvs_v1"
+    checkpoints_root = os.path.join(root, "checkpoints")
+    data_root = os.path.join(root, "data")
+
+    for dirpath, _, filenames in os.walk(checkpoints_root):
+        for filename in filenames:
+            if filename == "config.yaml":
+                full_path = os.path.join(dirpath, filename)
+                try:
+                    with open(full_path, "r") as f:
+                        config = yaml.safe_load(f)
+
+                    if not isinstance(config, dict):
+                        continue
+
+                    modified = False
+                    for key, value in config.items():
+                        if isinstance(value, str):
+                            if value.startswith("checkpoints/"):
+                                rel = value.split("/", 1)[1]
+                                config[key] = os.path.join(checkpoints_root, rel)
+                                modified = True
+                            elif value.startswith("data/"):
+                                rel = value.split("/", 1)[1]
+                                config[key] = os.path.join(data_root, rel)
+                                modified = True
+
+                    if modified:
+                        with open(full_path, "w") as f:
+                            yaml.dump(config, f)
+                        print(f"✅ Patched paths in {full_path}")
+                except Exception as e:
+                    print(f"❌ Failed to patch {full_path}: {e}")
 
 # Disable Streamlit file watcher
 os.environ['STREAMLIT_SERVER_FILE_WATCHER_TYPE'] = 'none'
@@ -21,6 +57,17 @@ from webapp.services.parsing.ds_builder import build_ds_from_notes
 from webapp.services.parsing.ds_validator import validate_ds
 from webapp.services.phonemes.phoneme_dict import PHONEMES as permitted_phonemes
 from inference.pipeline import run_inference
+
+def safe_symlink(src, dst):
+    try:
+        if not os.path.exists(dst):
+            os.symlink(src, dst)
+    except Exception as e:
+        print(f"❗ Failed to create symlink {dst} -> {src}: {e}")
+
+HF_ROOT = "/tmp/cantussvs_v1"
+safe_symlink(os.path.join(HF_ROOT, "checkpoints"), "checkpoints")
+safe_symlink(os.path.join(HF_ROOT, "data"), "data")
 
 # Directories
 HF_CHECKPOINTS_DIR = "/tmp/cantussvs_v1/checkpoints"
@@ -50,10 +97,25 @@ def download_and_extract_from_hf():
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_dir)
 
+        # ✅ Only do this once, right after unzip
+        patch_config_yaml_files()
+
+    # ✅ Create symlinks so repo paths like 'checkpoints/' and 'data/' work
+    def safe_symlink(src, dst):
+        try:
+            if not os.path.exists(dst):
+                os.symlink(src, dst)
+        except Exception as e:
+            st.warning(f"⚠️ Failed to create symlink {dst} → {src}: {e}")
+
+    safe_symlink(os.path.join(extract_dir, "checkpoints"), "checkpoints")
+    safe_symlink(os.path.join(extract_dir, "data"), "data")
+
     return extract_dir
 
 # Call it once and use it globally
 base_path = download_and_extract_from_hf()
+patch_config_yaml_files()
 st.write("✅ Loaded assets to:", base_path)
 
 # Config

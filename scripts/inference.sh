@@ -36,11 +36,11 @@ echo ">>> Logging to: $LOG"
 
 if [ "$MEL_ONLY" = false ]; then
   # Find the highest-step vocoder checkpoint in the acoustic experiment folder
-  VOCODER_PATH=$(find "checkpoints/$ACOUSTIC_EXP" -maxdepth 1 -type f -name 'model_ckpt_steps_*.ckpt' \
-    | sort -V | tail -n 1)
+  EXTRACT_ROOT="/tmp/cantussvs_v1"
+  VOCODER_PATH=$(find "$EXTRACT_ROOT/checkpoints/$ACOUSTIC_EXP" -maxdepth 1 -type f -name 'model_ckpt_steps_*.ckpt' | sort -V | tail -n 1)
 
   if [ -z "$VOCODER_PATH" ]; then
-    echo "❌ No vocoder checkpoint found in checkpoints/$ACOUSTIC_EXP/"
+    echo "❌ No vocoder checkpoint found in $EXTRACT_ROOT/checkpoints/$ACOUSTIC_EXP/"
     echo "   You can disable waveform synthesis by setting MEL_ONLY=true in the script."
     exit 1
   else

@@ -1,6 +1,5 @@
 # Web app
 streamlit
-gdown
 
 # Core libraries needed for synthesis/inference
 numpy<2.0.0
