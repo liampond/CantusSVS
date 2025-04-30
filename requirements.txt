@@ -1,38 +1,34 @@
-# It is recommended to install PyTorch manually.
-# PyTorch >= 2.0 is recommended, but 1.12 and 1.13 are compatible.
-# See instructions at https://pytorch.org/get-started/locally/
-# 
-# IMPORTANT: Install torch, torchvision, torchaudio manually BEFORE installing this file.
-# Do NOT pip install this file unless your environment already has PyTorch.
-
-# Core SVS / DiffSinger dependencies
-click
-einops>=0.7.0
-h5py
-librosa<0.10.0
-lightning~=2.3.0
-matplotlib
-MonkeyType==23.3.0
-numpy<2.0.0
-onnx~=1.16.0
-onnxsim~=0.4.36
-praat-parselmouth==0.4.3
-pytest
-pyworld==0.3.4
-PyYAML
-pyyaml
-resampy
-scipy>=1.10.0
-tensorboard
-tensorboardX
-tqdm
-typing_extensions
+# Web app
+streamlit
 gdown
 
-# Torch-related utilities
-# (requires torch already installed)
-torchmetrics
+# Core libraries needed for synthesis/inference
+numpy<2.0.0
+scipy>=1.10.0
+librosa<0.10.0
+resampy
+pyyaml
+omegaconf
+matplotlib
+h5py
+einops
+lightning~=2.3.0
 
-# Streamlit app dependencies
-lxml
+# DiffSinger requirements
+pyworld==0.3.4
+
+# Optional utilities / debugging
+tqdm
 pandas
+lxml
+MonkeyType==23.3.0
+pytest
+
+# Torch + TorchMetrics (CPU only)
+torch==2.1.0+cpu
+torchmetrics
+# Optional: include torchvision if you're using any image-related utilities
+# torchvision==0.16.0+cpu
+
+# CPU wheel source for torch
+--extra-index-url https://download.pytorch.org/whl/cpu
