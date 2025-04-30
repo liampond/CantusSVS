@@ -2,8 +2,8 @@ import os
 import shutil
 import traceback
 import json
-import time
-import gdown, zipfile
+import requests
+import zipfile
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
@@ -23,6 +23,8 @@ from webapp.services.phonemes.phoneme_dict import PHONEMES as permitted_phonemes
 from inference.pipeline import run_inference
 
 # Directories
+HF_CHECKPOINTS_DIR = "/tmp/cantussvs_v1/checkpoints"
+HF_DATA_DIR = "/tmp/cantussvs_v1/data"
 DEMO_FILES = PROJECT_ROOT / "webapp/demo_files"
 UPLOAD_MEI_DIR = PROJECT_ROOT / "webapp/uploaded_mei"
 UPLOAD_DS_DIR = PROJECT_ROOT / "webapp/uploaded_ds"
@@ -30,6 +32,29 @@ TMP_DS_DIR = PROJECT_ROOT / "webapp/tmp_ds"
 OUTPUT_DIR = PROJECT_ROOT / "webapp/output"
 for d in [DEMO_FILES, UPLOAD_MEI_DIR, UPLOAD_DS_DIR, TMP_DS_DIR, OUTPUT_DIR]:
     d.mkdir(parents=True, exist_ok=True)
+
+@st.cache_resource
+def download_and_extract_from_hf():
+    url = "https://huggingface.co/datasets/liampond/CantusSVS/resolve/main/cantussvs_v1.zip"
+    zip_path = "/tmp/cantussvs_v1.zip"
+    extract_dir = "/tmp/cantussvs_v1"
+
+    if not os.path.exists(extract_dir):
+        st.write("📦 Downloading data + model from Hugging Face...")
+        r = requests.get(url, stream=True)
+        with open(zip_path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        st.write("📂 Extracting contents...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_dir)
+
+    return extract_dir
+
+# Call it once and use it globally
+base_path = download_and_extract_from_hf()
+st.write("✅ Loaded assets to:", base_path)
 
 # Config
 st.set_page_config(page_title="CantusSVS", layout="wide")

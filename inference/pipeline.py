@@ -13,6 +13,7 @@ from utils.infer_utils import parse_commandline_spk_mix, trans_key
 from webapp.services.parsing.ds_validator import validate_ds
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+HF_CHECKPOINTS_DIR = "/tmp/cantussvs_v1/checkpoints"
 
 
 def run_inference(
@@ -77,10 +78,12 @@ def run_inference(
 
     # ==== Variance Inference ==== #
     print(f"[pipeline] Loading variance exp: {variance_exp}")
+    variance_config_path = os.path.join(HF_CHECKPOINTS_DIR, variance_exp, "config.yaml")
+
     sys.argv = [
         "", 
-        "--config", f"checkpoints/{variance_exp}/config.yaml", 
-        "--exp_name", variance_exp, 
+        "--config", variance_config_path,
+        "--exp_name", variance_exp,
         "--infer"
     ]
     set_hparams(print_hparams=False)
@@ -108,10 +111,12 @@ def run_inference(
 
     # ==== Acoustic Inference ==== #
     print(f"[pipeline] Loading acoustic exp: {acoustic_exp}")
+    acoustic_config_path = os.path.join(HF_CHECKPOINTS_DIR, acoustic_exp, "config.yaml")
+
     sys.argv = [
         "", 
-        "--config", f"checkpoints/{acoustic_exp}/config.yaml", 
-        "--exp_name", acoustic_exp, 
+        "--config", acoustic_config_path,
+        "--exp_name", acoustic_exp,
         "--infer"
     ]
     set_hparams(print_hparams=False)
