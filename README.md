@@ -1,3 +1,5 @@
+This is an out-of-date repository. You can find the updated version at https://huggingface.co/spaces/liampond/CantusSVS-hf
+
 # CantusSVS
 
 ## Table of Contents
